@@ -1,20 +1,32 @@
-﻿namespace Lavalink.NET.Types
+﻿using Newtonsoft.Json;
+
+namespace Lavalink.NET.Types
 {
 	public class TrackInfo
 	{
-		public string identifier { get; set; }
-		public bool isSeekable { get; set; }
-		public string author { get; set; }
-		public int length { get; set; }
-		public bool isStream { get; set; }
-		public int position { get; set; }
-		public string title { get; set; }
-		public string uri { get; set; }
+		[JsonProperty("identifier")]
+		public string Identifier { get; set; }
+		[JsonProperty("isSeekable")]
+		public bool Seekable { get; set; }
+		[JsonProperty("author")]
+		public string Author { get; set; }
+		[JsonProperty("length")]
+		public int Length { get; set; }
+		[JsonProperty("isStream")]
+		public bool Stream { get; set; }
+		[JsonProperty("position")]
+		public int Position { get; set; }
+		[JsonProperty("title")]
+		public string Title { get; set; }
+		[JsonProperty("uri")]
+		public string URL { get; set; }
 	}
 
     public class Track
     {
-		public string track { get; }
-		public TrackInfo info { get; }
+		[JsonProperty("track")]
+		public string TrackString { get; }
+		[JsonProperty("info")]
+		public TrackInfo TrackInfo { get; }
     }
 }

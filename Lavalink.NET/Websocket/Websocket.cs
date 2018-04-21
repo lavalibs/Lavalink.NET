@@ -12,30 +12,21 @@ namespace Lavalink.NET.Websocket
 		public string Password { get; set; }
 		public string UserID { get; set; }
 
-
-		public WebsocketOptions SetHost(string value)
+		public WebsocketOptions(string host, string password, string userID)
 		{
-			Host = value;
-			return this;
-		}
-
-
-		public WebsocketOptions SetPassword(string value)
-		{
-			Password = value;
-			return this;
-		}
-
-
-		public WebsocketOptions SetUserID(string value)
-		{
-			UserID = value;
-			return this;
+			Host = host ?? throw new ArgumentNullException(nameof(host));
+			Password = password ?? throw new ArgumentNullException(nameof(password));
+			UserID = userID ?? throw new ArgumentNullException(nameof(userID));
 		}
 	}
 
 	public class Websocket
 	{
+		public event EventHandler Ready;
+		public event MessageEventHandler Message;
+		public event CloseEventHandler Close;
+		public event DebugEventHandler Debug;
+
 		private const int ReceiveChunkSize = 1024;
 		private const int SendChunkSize = 1024;
 
@@ -43,11 +34,6 @@ namespace Lavalink.NET.Websocket
 		private readonly Uri _uri;
 		private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private readonly CancellationToken _cancellationToken;
-
-		public event EventHandler Ready;
-		public event MessageEventHandler Message;
-		public event CloseEventHandler Close;
-		public event DebugEventHandler Debug;
 
 		public Websocket(WebsocketOptions options)
 		{
