@@ -39,7 +39,7 @@ namespace Lavalink.NET
 		public Websocket.Websocket Websocket { get; }
 		public PlayerStore Players { get; }
 		public Dictionary<string, string> VoiceStates = new Dictionary<string, string>();
-		public Dictionary<string, VoiceServerUpdate> VoiceServers;
+		public Dictionary<string, VoiceServerUpdate> VoiceServers = new Dictionary<string, VoiceServerUpdate>();
 
 		private readonly ClientOptions _config;
 
