@@ -48,6 +48,8 @@ namespace Lavalink.NET
 	public abstract class Client
 	{
 		public Websocket.Websocket Websocket { get; }
+		public Player.PlayerStore PlayerStore;
+
 		private readonly ClientOptions _config;
 
 		public Client(ClientOptions options)
@@ -58,10 +60,11 @@ namespace Lavalink.NET
 					.SetHost(_config.HostWS)
 					.SetPassword(_config.Password)
 					.SetUserID(_config.UserID)
-				);
+			);
+			PlayerStore = new Player.PlayerStore(this);
 		}
 
-		public Task Init()
+		public Task InitAsync()
 		{
 			return Websocket.Connect();
 		}
@@ -80,6 +83,6 @@ namespace Lavalink.NET
 			}
 		}
 
-		public abstract void Send(ulong guildID);
+		public abstract Task Send(string guildID, string packetJSON);
 	}
 }

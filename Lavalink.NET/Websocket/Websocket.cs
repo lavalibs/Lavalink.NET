@@ -95,12 +95,11 @@ namespace Lavalink.NET.Websocket
 			}
 		}
 
-		private Task ConnectAsync()
+		private async Task ConnectAsync()
 		{
-			Task task = _ws.ConnectAsync(_uri, _cancellationToken);
+			await _ws.ConnectAsync(_uri, _cancellationToken);
 			Ready(this, new EventArgs());
 			StartListen();
-			return task;
 		}
 
 		private async void StartListen()
@@ -121,8 +120,7 @@ namespace Lavalink.NET.Websocket
 
 						if (result.MessageType == WebSocketMessageType.Close)
 						{
-							await
-								_ws.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+							await _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
 							Close(this, new CloseEventArgs(_ws.CloseStatus, _ws.CloseStatusDescription));
 						}
 						else
