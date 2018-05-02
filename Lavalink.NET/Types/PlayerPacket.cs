@@ -62,6 +62,12 @@ namespace Lavalink.NET.Player
 		public string OPCode { get; set; }
 		[JsonProperty("guildId")]
 		public string GuildID { get; set; }
+
+		public PlayerPacket(string opCode, string guildID)
+		{
+			OPCode = opCode ?? throw new ArgumentNullException(nameof(opCode);
+			GuildID = guildID ?? throw new ArgumentNullException(nameof(guildID));
+		}
 	}
 
 	public class VoiceUpdatePacket : PlayerPacket
@@ -72,9 +78,8 @@ namespace Lavalink.NET.Player
 		public VoiceServerUpdate UpdateEvent { get; set; }
 
 		public VoiceUpdatePacket(string opCode, string guildID, string sessionID, VoiceServerUpdate updateEvent)
+			: base(opCode, guildID)
 		{
-			OPCode = opCode ?? throw new ArgumentNullException(nameof(opCode));
-			GuildID = guildID ?? throw new ArgumentNullException(nameof(guildID));
 			SessionID = sessionID ?? throw new ArgumentNullException(nameof(sessionID));
 			UpdateEvent = updateEvent ?? throw new ArgumentNullException(nameof(updateEvent));
 		}
@@ -90,9 +95,8 @@ namespace Lavalink.NET.Player
 		public string EndTime { get; set; }
 
 		public PlayPacket(string opCode, string guildID, string track, string startTime, string endTime)
+			: base(opCode, guildID)
 		{
-			OPCode = opCode ?? throw new ArgumentNullException(nameof(opCode));
-			GuildID = guildID ?? throw new ArgumentNullException(nameof(guildID));
 			Track = track ?? throw new ArgumentNullException(nameof(track));
 			StartTime = startTime ?? throw new ArgumentNullException(nameof(startTime));
 			EndTime = endTime ?? throw new ArgumentNullException(nameof(endTime));
@@ -105,9 +109,8 @@ namespace Lavalink.NET.Player
 		public bool Paused { get; set; }
 
 		public PausePacket(string opCode, string guildID, bool paused)
+			: base(opCode, guildID)
 		{
-			OPCode = opCode ?? throw new ArgumentNullException(nameof(opCode));
-			GuildID = guildID ?? throw new ArgumentNullException(nameof(guildID));
 			Paused = paused;
 		}
 	}
@@ -118,9 +121,8 @@ namespace Lavalink.NET.Player
 		public int Position { get; set; }
 
 		public SeekPacket(string opCode, string guildID, int position)
+			: base(opCode, guildID)
 		{
-			OPCode = opCode ?? throw new ArgumentNullException(nameof(opCode));
-			GuildID = guildID ?? throw new ArgumentNullException(nameof(guildID));
 			Position = position;
 		}
 	}
@@ -131,9 +133,8 @@ namespace Lavalink.NET.Player
 		public int Volume { get; set; }
 
 		public VolumePacket(string opCode, string guildID, int volume)
+			: base(opCode, guildID)
 		{
-			OPCode = opCode ?? throw new ArgumentNullException(nameof(opCode));
-			GuildID = guildID ?? throw new ArgumentNullException(nameof(guildID));
 			Volume = volume;
 		}
 	}

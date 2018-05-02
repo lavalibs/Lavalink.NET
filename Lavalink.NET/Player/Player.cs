@@ -11,10 +11,15 @@ namespace Lavalink.NET.Player
 		PAUSED,
 		ENDED,
 		ERRORED,
+		STUCK
 	}
 
 	public class Player
     {
+		public event TrackEndEvent TrackEndEvent;
+		public event TrackExceptionEvent TrackExceptionEvent;
+		public event TrackStuckEvent TrackStuckEvent;
+
 		public string GuildID { get; }
 		public Status Status { get; set; }
 
