@@ -65,7 +65,7 @@ namespace Lavalink.NET.Player
 
 		public PlayerPacket(string opCode, string guildID)
 		{
-			OPCode = opCode ?? throw new ArgumentNullException(nameof(opCode);
+			OPCode = opCode ?? throw new ArgumentNullException(nameof(opCode));
 			GuildID = guildID ?? throw new ArgumentNullException(nameof(guildID));
 		}
 	}

@@ -57,10 +57,13 @@ namespace Lavalink.NET
 	/// </summary>
 	public abstract class Client
 	{
+		public event Message Message;
+
 		public PlayerStore Players { get; }
-		public Dictionary<string, string> VoiceStates = new Dictionary<string, string>();
-		public Dictionary<string, VoiceServerUpdate> VoiceServers = new Dictionary<string, VoiceServerUpdate>();
-		public Websocket.Websocket Websocket { get; }
+
+		internal Dictionary<string, string> VoiceStates = new Dictionary<string, string>();
+		internal Dictionary<string, VoiceServerUpdate> VoiceServers = new Dictionary<string, VoiceServerUpdate>();
+		internal Websocket.Websocket Websocket { get; }
 
 		private readonly ClientOptions _config;
 
@@ -179,9 +182,15 @@ namespace Lavalink.NET
 		{
 			dynamic lavalinkEvent = JObject.Parse(e.Message);
 
+			Message(this, new ClientEventArgs(lavalinkEvent));
+
 			if (lavalinkEvent.op == "event")
 			{
-
+				if (lavalinkEvent.guildId)
+				{
+					Player.Player player = Players.GetPlayer(lavalinkEvent.guildId);
+					player.PlayerEventEmitter(this, new MessageEventArgs(e.Message));
+				}
 			}
 		}
 	}

@@ -3,6 +3,9 @@ using Newtonsoft.Json;
 
 namespace Lavalink.NET.Player
 {
+	/// <summary>
+	/// Base TrackEventArgs class, all event args extend this class.
+	/// </summary>
     public class TrackEventArgs : EventArgs
 	{
 		[JsonProperty("op")]
@@ -22,7 +25,10 @@ namespace Lavalink.NET.Player
 			Type = type ?? throw new ArgumentNullException(nameof(type));
 		}
 	}
-
+	
+	/// <summary>
+	/// TrackArgs for the TrackEnd event.
+	/// </summary>
 	public class TrackEndEventArgs : TrackEventArgs
 	{
 		[JsonProperty("reason")]
@@ -35,18 +41,24 @@ namespace Lavalink.NET.Player
 		}
 	}
 
+	/// <summary>
+	/// TrackArgs for the TrackExeption event.
+	/// </summary>
 	public class TrackExceptionEventArgs : TrackEventArgs
 	{
 		[JsonProperty("error")]
 		public string Error { get; set; }
 
-		public TrackExceptionEventArgs(string op, string track, string guildID, string type)
+		public TrackExceptionEventArgs(string op, string track, string guildID, string type, string error)
 			: base(op, track, guildID, type)
 		{
-
+			Error = error ?? throw new ArgumentNullException(nameof(error));
 		}
 	}
 
+	/// <summary>
+	/// TrackArgs for the TrackStuck event.
+	/// </summary>
 	public class TrackStuckEventArgs : TrackEventArgs
 	{
 		[JsonProperty("thresholdMs")]
@@ -59,7 +71,7 @@ namespace Lavalink.NET.Player
 		}
 	}
 
-	public delegate void TrackEndEvent(object sender, TrackEndEvent e);
-	public delegate void TrackExceptionEvent(object sender, TrackExceptionEvent e);
-	public delegate void TrackStuckEvent(object sender, TrackStuckEvent e);
+	public delegate void TrackEndEvent(object sender, TrackEndEventArgs e);
+	public delegate void TrackExceptionEvent(object sender, TrackExceptionEventArgs e);
+	public delegate void TrackStuckEvent(object sender, TrackStuckEventArgs e);
 }

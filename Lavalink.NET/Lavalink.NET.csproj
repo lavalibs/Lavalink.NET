@@ -2,6 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <Authors>Yukine</Authors>
+    <Product />
+    <Company />
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseUrl>https://github.com/Dev-Yukine/Lavalink.NET/blob/master/LICENSE</PackageLicenseUrl>
+    <Copyright>MIT</Copyright>
+    <PackageProjectUrl>https://github.com/Dev-Yukine/Lavalink.NET</PackageProjectUrl>
+    <PackageReleaseNotes>Initial Release</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
