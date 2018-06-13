@@ -1,10 +1,8 @@
 ﻿using System.Threading.Tasks;
-using Lavalink.NET.Types;
-using Lavalink.NET.Websocket;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Lavalink.NET.Player
+namespace Lavalink.NET.Types
 {
 	/// <summary>
 	/// Status enum for players.
@@ -28,10 +26,12 @@ namespace Lavalink.NET.Player
 		/// Event to call on Track Ending.
 		/// </summary>
 		public event TrackEndEvent End;
+
 		/// <summary>
 		/// Event to call on Track Exeption.
 		/// </summary>
-		public event TrackExceptionEvent Exeption;
+		public event TrackException Exeption;
+
 		/// <summary>
 		/// Event to call on Track Stuck.
 		/// </summary>
@@ -40,7 +40,7 @@ namespace Lavalink.NET.Player
 		/// <summary>
 		/// The GuildID of this player.
 		/// </summary>
-		public string GuildID { get; }
+		public ulong GuildID { get; }
 		/// <summary>
 		/// The current Status od this player.
 		/// </summary>
@@ -56,7 +56,7 @@ namespace Lavalink.NET.Player
 		/// </summary>
 		/// <param name="client"> The Client of this player. </param>
 		/// <param name="guildID"> The GuildID of this player. </param>
-		public Player(Client client, string guildID)
+		public Player(Client client, ulong guildID)
 		{
 			_client = client;
 			GuildID = guildID;
@@ -76,7 +76,7 @@ namespace Lavalink.NET.Player
 		/// <returns> Task resolving with void. </returns>
 		public Task JoinAsync(string channelID, bool mute = false, bool deaf = false)
 		{
-			return _client.SendAsync(GuildID, JsonConvert.SerializeObject(new DiscordOP4Packet(new DiscordVoicePacket(GuildID, channelID, mute, deaf))));
+			return _client.SendAsync(GuildID, JsonConvert.SerializeObject(new DiscordOP4Packet(new DiscordVoicePacket(GuildID.ToString(), channelID, mute, deaf))));
 		}
 
 		/// <summary>
@@ -85,7 +85,7 @@ namespace Lavalink.NET.Player
 		/// <returns> Task resolving with void. </returns>
 		public Task LeaveAsync()
 		{
-			return _client.SendAsync(GuildID, JsonConvert.SerializeObject(new DiscordOP4Packet(new DiscordVoicePacket(GuildID, null, false, false))));
+			return _client.SendAsync(GuildID, JsonConvert.SerializeObject(new DiscordOP4Packet(new DiscordVoicePacket(GuildID.ToString(), null, false, false))));
 		}
 
 		/// <summary>
@@ -97,7 +97,7 @@ namespace Lavalink.NET.Player
 		/// <returns> Task resolving with void. </returns>
 		public async Task PlayAsync(string track, int? start = 0, int? end = 0)
 		{
-			await _client.Websocket.SendMessage(JsonConvert.SerializeObject(new PlayPacket("play", GuildID, track, start.ToString(), end.ToString())));
+			await _client.Websocket.SendMessage(JsonConvert.SerializeObject(new PlayPacket("play", GuildID.ToString(), track, start.ToString(), end.ToString())));
 
 			Status = Status.PLAYING;
 		}
@@ -111,7 +111,7 @@ namespace Lavalink.NET.Player
 		/// <returns> Task resolving with void. </returns>
 		public async Task PlayAsync(Track track, int? start = 0, int? end = 0)
 		{
-			await _client.Websocket.SendMessage(JsonConvert.SerializeObject(new PlayPacket("play", GuildID, track.TrackString, start.ToString(), end.ToString())));
+			await _client.Websocket.SendMessage(JsonConvert.SerializeObject(new PlayPacket("play", GuildID.ToString(), track.TrackString, start.ToString(), end.ToString())));
 
 			Status = Status.PLAYING;
 		}
@@ -123,7 +123,7 @@ namespace Lavalink.NET.Player
 		/// <returns> Task resolving with void. </returns>
 		public async Task PauseAsync(bool pause = true)
 		{
-			await _client.Websocket.SendMessage(JsonConvert.SerializeObject(new PausePacket("pause", GuildID, pause)));
+			await _client.Websocket.SendMessage(JsonConvert.SerializeObject(new PausePacket("pause", GuildID.ToString(), pause)));
 
 			Status = Status.PAUSED;
 		}
@@ -135,7 +135,7 @@ namespace Lavalink.NET.Player
 		/// <returns> Task resolving with void. </returns>
 		public Task SeekAsync(int position)
 		{
-			return _client.Websocket.SendMessage(JsonConvert.SerializeObject(new SeekPacket("seek", GuildID, position)));
+			return _client.Websocket.SendMessage(JsonConvert.SerializeObject(new SeekPacket("seek", GuildID.ToString(), position)));
 		}
 
 		/// <summary>
@@ -145,7 +145,7 @@ namespace Lavalink.NET.Player
 		/// <returns> Task resolving with void. </returns>
 		public Task SetVolumeAsync(int volume)
 		{
-			return _client.Websocket.SendMessage(JsonConvert.SerializeObject(new VolumePacket("volume", GuildID, volume)));
+			return _client.Websocket.SendMessage(JsonConvert.SerializeObject(new VolumePacket("volume", GuildID.ToString(), volume)));
 		}
 
 		/// <summary>
@@ -156,7 +156,7 @@ namespace Lavalink.NET.Player
 		/// <returns> Task resolving with void. </returns>
 		public Task VoiceUpdateAsync(string sessionID, VoiceServerUpdate voiceEvent)
 		{
-			return _client.Websocket.SendMessage(JsonConvert.SerializeObject(new VoiceUpdatePacket("voiceUpdate", GuildID, sessionID, voiceEvent)));
+			return _client.Websocket.SendMessage(JsonConvert.SerializeObject(new VoiceUpdatePacket("voiceUpdate", GuildID.ToString(), sessionID, voiceEvent)));
 		}
 
 		internal void PlayerEventEmitter(object sender, MessageEventArgs e)

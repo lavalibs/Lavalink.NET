@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
-namespace Lavalink.NET.Player
+namespace Lavalink.NET.Types
 {
 	/// <summary>
 	/// Store of all Players
 	/// </summary>
     public class PlayerStore : Dictionary<string, Player>
     {
-		private Client _client;
+		private readonly Client _client;
 
 		/// <summary>
 		/// Constructor of PlayerStore
@@ -19,7 +20,7 @@ namespace Lavalink.NET.Player
 		}
 
 		/// <summary>
-		/// Method to Get Player and create and return new one if no Player is there.
+		/// Method to get/create a player.
 		/// </summary>
 		/// <param name="key"> GuildID of the Player </param>
 		/// <returns> Player instance </returns>
@@ -31,7 +32,7 @@ namespace Lavalink.NET.Player
 			}
 			else
 			{
-				player = new Player(_client, key);
+				player = new Player(_client, Convert.ToUInt64(key));
 				Add(key, player);
 				return player;
 			}

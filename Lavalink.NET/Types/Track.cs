@@ -25,8 +25,8 @@ namespace Lavalink.NET.Types
     public class Track
     {
 		[JsonProperty("track")]
-		public string TrackString { get; }
+		public string TrackString { get; set; }
 		[JsonProperty("info")]
-		public TrackInfo TrackInfo { get; }
+		public TrackInfo TrackInfo { get; set; }
     }
 }

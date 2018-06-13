@@ -2,7 +2,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace Lavalink.NET.Player
+namespace Lavalink.NET.Types
 {
 	public class VoiceServerUpdate
 	{
@@ -42,12 +42,12 @@ namespace Lavalink.NET.Player
 		[JsonProperty("suppress")]
 		public bool Suppress { get; set; }
 
-		public VoiceStateUpdate(string guildID, string channelID, string userID, string sessionID, bool deaf, bool mute, bool selfDeaf, bool selfMute, bool suppress)
+		public VoiceStateUpdate(string guildID, string channelID, string userID, string sessionID, bool deaf = false, bool mute = false, bool selfDeaf = false, bool selfMute = false, bool suppress = false)
 		{
 			GuildID = guildID ?? throw new ArgumentNullException(nameof(guildID));
-			ChannelID = channelID ?? throw new ArgumentNullException(nameof(channelID));
+			ChannelID = channelID;
 			UserID = userID ?? throw new ArgumentNullException(nameof(userID));
-			SessionID = sessionID ?? throw new ArgumentNullException(nameof(sessionID));
+			SessionID = sessionID;
 			Deaf = deaf;
 			Mute = mute;
 			SelfDeaf = selfDeaf;

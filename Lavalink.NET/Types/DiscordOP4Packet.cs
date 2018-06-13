@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace Lavalink.NET.Player
+namespace Lavalink.NET.Types
 {
 	public class DiscordVoicePacket
 	{

@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2037
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lavalink.NET", "Lavalink.NET\Lavalink.NET.csproj", "{8B324287-9DA2-468F-A555-F9C3FFB7977B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lavalink.NET", "Lavalink.NET\Lavalink.NET.csproj", "{8B324287-9DA2-468F-A555-F9C3FFB7977B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestBot_DSharpPlus", "TestBot_DSharpPlus\TestBot_DSharpPlus.csproj", "{47BB9473-9998-4726-A74B-9D6D61BA6252}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{8B324287-9DA2-468F-A555-F9C3FFB7977B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B324287-9DA2-468F-A555-F9C3FFB7977B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B324287-9DA2-468F-A555-F9C3FFB7977B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47BB9473-9998-4726-A74B-9D6D61BA6252}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47BB9473-9998-4726-A74B-9D6D61BA6252}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47BB9473-9998-4726-A74B-9D6D61BA6252}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47BB9473-9998-4726-A74B-9D6D61BA6252}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
