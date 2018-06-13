@@ -140,6 +140,6 @@ namespace Lavalink.NET.Types
 	public delegate void CloseEvent(object sender, CloseEventArgs e);
 	public delegate void ConnectionFailedEvent(object sender, ConnectionFailedArgs e);
 	public delegate void TrackEndEvent(object sender, TrackEndEventArgs e);
-	public delegate void TrackException(object sender, TrackExceptionEventArgs e);
+	public delegate void TrackExceptionEvent(object sender, TrackExceptionEventArgs e);
 	public delegate void TrackStuckEvent(object sender, TrackStuckEventArgs e);
 }

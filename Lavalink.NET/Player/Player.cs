@@ -30,7 +30,7 @@ namespace Lavalink.NET.Types
 		/// <summary>
 		/// Event to call on Track Exeption.
 		/// </summary>
-		public event TrackException Exeption;
+		public event TrackExceptionEvent Exeption;
 
 		/// <summary>
 		/// Event to call on Track Stuck.
