@@ -173,8 +173,11 @@ namespace Lavalink.NET
 		public async Task<List<Track>> LoadTracksAsync(Uri query)
 		{
 			HttpWebRequest request = (HttpWebRequest) WebRequest.Create(_config.HostRest + "/loadtracks?identifier=" + query);
-			request.Method = "Get";
-			request.Headers.Add("Content-Type", "appication/json");
+
+			request.Headers.Add("Authorization", _config.Password);
+			request.Headers.Add("Content-Type", "application/json");
+			request.Headers.Add("Accept", "application/json");
+
 			request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
 			using (HttpWebResponse response = (HttpWebResponse) await request.GetResponseAsync())
