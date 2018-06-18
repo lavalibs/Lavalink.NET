@@ -90,7 +90,7 @@ namespace Lavalink.NET.Websocket
 				await _ws.ConnectAsync(_uri, _cancellationToken);
 			} catch (Exception e)
 			{
-				ConnectionFailed?.Invoke(this, new ConnectionFailedArgs(_ws.CloseStatus, _ws.CloseStatusDescription, e));
+				ConnectionFailed?.Invoke(this, new ConnectionFailedArgs(e));
 			}
 			Debug?.Invoke(this, new DebugEventArgs("Websocket Connection succesfully established"));
 			Ready?.Invoke(this, new EventArgs());

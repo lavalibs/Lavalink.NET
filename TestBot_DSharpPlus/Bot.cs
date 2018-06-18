@@ -46,7 +46,7 @@ namespace TestBot
 		{
 			_lavalinkClient = new LavalinkClient(new ClientOptions {
 				UserID = _client.CurrentUser.Id.ToString(),
-				HostRest = "https://localhost:2333",
+				HostRest = "http://localhost:2333",
 				HostWS = "ws://localhost:8060",
 				Password = "youshallnotpass",
 				UseLogging = true,
@@ -54,7 +54,7 @@ namespace TestBot
 				_client);
 			_client.VoiceStateUpdated += async e =>
 			{
-				await _lavalinkClient.VoiceStateUpdateAsync(new VoiceStateUpdate(e.Guild.Id.ToString(), e.Channel?.Id.ToString(), e.User.Id.ToString(), e.SessionId));
+				await _lavalinkClient.VoiceStateUpdateAsync(new VoiceStateUpdate(e.After.Guild.Id.ToString(), e.Channel?.Id.ToString(), e.User.Id.ToString(), e.SessionId));
 			};
 			_client.VoiceServerUpdated += async e =>
 			{

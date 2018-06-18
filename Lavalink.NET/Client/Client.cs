@@ -57,7 +57,7 @@ namespace Lavalink.NET
 		/// <summary>
 		/// Event that gets triggerd when a Message from Lavalink is received.
 		/// </summary>
-		public event Message Message;
+		public event MessageEvent Message;
 
 		/// <summary>
 		/// Event that gets triggerd when this Client is ready to use.
@@ -70,7 +70,7 @@ namespace Lavalink.NET
 		public event CloseEvent Disconnect;
 
 		/// <summary>
-		/// Event that gets triggerd when this Client encounter an Error while.
+		/// Event that gets triggerd when this Client encounter an Error.
 		/// </summary>
 		public event ErrorEvent Error;
 
@@ -126,21 +126,20 @@ namespace Lavalink.NET
 
 			Debug += DebugHandler;
 			Ready += ReadyHandler;
+			Disconnect += DisconnectHandler;
 			Websocket.Message += WebsocketMessage;
 			Websocket.Ready += Ready;
 			Websocket.Debug += Debug;
-			Websocket.Close += DisconnectHandler;
-			Websocket.ConnectionFailed += ErrorHandler;
+			Websocket.Close += Disconnect;
+			Websocket.ConnectionFailed += ConnectionFailedHandler;
 		}
 
 		/// <summary>
 		/// Method to Connect to the Lavalink Websocket.
 		/// </summary>
 		/// <returns> Task resolving with void. </returns>
-		public Task ConnectAsync()
-		{
-			return Websocket.Connect();
-		}
+		public Task ConnectAsync() 
+			=> Websocket.Connect();
 
 		/// <summary>
 		/// Method to Load tracks from the Lavalink Rest Api.
@@ -162,8 +161,7 @@ namespace Lavalink.NET
 			using (StreamReader reader = new StreamReader(stream))
 			{
 				string json = await reader.ReadToEndAsync();
-				List<Track> tracks = JsonConvert.DeserializeObject<List<Track>>(json);
-				return tracks;
+				return JsonConvert.DeserializeObject<List<Track>>(json);
 			}
 		}
 
@@ -175,6 +173,8 @@ namespace Lavalink.NET
 		public async Task<List<Track>> LoadTracksAsync(Uri query)
 		{
 			HttpWebRequest request = (HttpWebRequest) WebRequest.Create(_config.HostRest + "/loadtracks?identifier=" + query);
+			request.Method = "Get";
+			request.Headers.Add("Content-Type", "appication/json");
 			request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
 			using (HttpWebResponse response = (HttpWebResponse) await request.GetResponseAsync())
@@ -182,7 +182,6 @@ namespace Lavalink.NET
 			using (StreamReader reader = new StreamReader(stream))
 			{
 				string json = await reader.ReadToEndAsync();
-				
 				return JsonConvert.DeserializeObject<List<Track>>(json);
 			}
 		}
@@ -260,15 +259,19 @@ namespace Lavalink.NET
 
 			Debug(this, new DebugEventArgs($"Received Websocket message from Lavalink with OP \"{lavalinkEvent.op}\""));
 
-			Message?.Invoke(this, new MessageReceivedEvent(lavalinkEvent));
+			Logger.Debug(e.Message);
+
+			Message?.Invoke(this, new MessageEventArgs(lavalinkEvent));
 
 			if (lavalinkEvent.op == "event")
 			{
-				if (lavalinkEvent.guildId)
+				if (lavalinkEvent.guildId != null)
 				{
 					Debug(this, new DebugEventArgs($"Received Player Event with GuildID {lavalinkEvent.guildId}, emit event on player."));
-					Player player = Players.GetPlayer(lavalinkEvent.guildId);
+					Player player = Players.GetPlayer(Convert.ToString(lavalinkEvent.guildId));
 					player.PlayerEventEmitter(this, new MessageEventArgs(e.Message));
+				} else {
+					Debug(this, new DebugEventArgs($"Received Lavalink event with \"event\" op but no guild id\n{lavalinkEvent}"));
 				}
 			} else if (lavalinkEvent.op == "stats")
 			{
@@ -276,27 +279,20 @@ namespace Lavalink.NET
 			}
 		}
 
-		private void DebugHandler(object sender, DebugEventArgs args)
-		{
-			EmitLogs(LogLevel.Debug, args.Message);
-		}
+		private void DebugHandler(object sender, DebugEventArgs args) 
+			=> EmitLogs(LogLevel.Debug, args.Message);
 
 		private void ReadyHandler(object sender, EventArgs args)
-		{
-			EmitLogs(LogLevel.Info, "LavalinkClient succesfully initialized");
-		}
+			=> EmitLogs(LogLevel.Info, "LavalinkClient succesfully initialized");
 
-		private void ErrorHandler(object sender, ConnectionFailedArgs args)
+		private void ConnectionFailedHandler(object sender, ConnectionFailedArgs args)
 		{
-			var message = $"Connection refused with following reason {args.Reason} and StatusCode {args.Status}";
+			var message = $"Connection refused with following message {args.Exception.Message}.";
 			EmitLogs(LogLevel.Error, message);
-			Error(this, new Types.ErrorEventArgs(new Exception(message)));
+			Error?.Invoke(this, new Types.ErrorEventArgs(new Exception(message)));
 		}
 
-		private void DisconnectHandler(object sender, CloseEventArgs args)
-		{
-			EmitLogs(LogLevel.Error, $"Websocket Connection Closed with following reason {args.Reason} and StatusCode {args.Status}");
-			Disconnect(this, args);
-		}
+		private void DisconnectHandler(object sender, CloseEventArgs args) 
+			=> EmitLogs(LogLevel.Error, $"Websocket Connection Closed with following reason {args.Reason} and StatusCode {args.Status}");
 	}
 }

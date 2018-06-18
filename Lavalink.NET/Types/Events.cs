@@ -108,20 +108,11 @@ namespace Lavalink.NET.Types
 		}
 	}
 
-	public class MessageReceivedEvent : EventArgs
-	{
-		public dynamic Message { get; set; }
-
-		public MessageReceivedEvent(dynamic input)
-			=> Message = input;
-	}
-
-	public class ConnectionFailedArgs : CloseEventArgs
+	public class ConnectionFailedArgs : EventArgs
 	{
 		public Exception Exception { get; set; }
 
-		public ConnectionFailedArgs(WebSocketCloseStatus? code, string reason, Exception error) 
-			: base(code, reason)
+		public ConnectionFailedArgs(Exception error) 
 		{
 			Exception = error;
 		}
@@ -132,7 +123,6 @@ namespace Lavalink.NET.Types
 		public 
 	} */
 
-	public delegate void Message(object sender, MessageReceivedEvent e);
 	public delegate void DebugEvent(object sender, DebugEventArgs e);
 	/// public delegate void StatsEvent(object sender, );
 	public delegate void MessageEvent(object sender, MessageEventArgs e);
