@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using Lavalink.NET.Types;
 using Serilog;
 using Lavalink.NET.Websocket;
+using System.Threading;
 
 namespace Lavalink.NET
 {
@@ -137,9 +138,13 @@ namespace Lavalink.NET
 		/// <summary>
 		/// Method to Connect to the Lavalink Websocket.
 		/// </summary>
-		/// <returns> Task resolving with void. </returns>
-		public Task ConnectAsync() 
-			=> Websocket.Connect();
+		/// <returns> void. </returns>
+		public void Start()
+		{
+			ThreadStart threadMethod = new ThreadStart(Websocket.ConnectAsync);
+			Thread websocketThread = new Thread(threadMethod);
+			websocketThread.Start();
+		}
 
 		/// <summary>
 		/// Method to Load tracks from the Lavalink Rest Api.
@@ -272,13 +277,13 @@ namespace Lavalink.NET
 				{
 					Debug(this, new DebugEventArgs($"Received Player Event with GuildID {lavalinkEvent.guildId}, emit event on player."));
 					Player player = Players.GetPlayer(Convert.ToString(lavalinkEvent.guildId));
-					player.PlayerEventEmitter(this, new MessageEventArgs(e.Message));
+					player.EmitEvent(e.Message);
 				} else {
 					Debug(this, new DebugEventArgs($"Received Lavalink event with \"event\" op but no guild id\n{lavalinkEvent}"));
 				}
 			} else if (lavalinkEvent.op == "stats")
 			{
-				
+				// TODO make stats event + args
 			}
 		}
 
@@ -290,12 +295,12 @@ namespace Lavalink.NET
 
 		private void ConnectionFailedHandler(object sender, ConnectionFailedArgs args)
 		{
-			var message = $"Connection refused with following message {args.Exception.Message}.";
+			var message = $"Connection refused with following message \"{args.Exception.Message}\".";
 			EmitLogs(LogLevel.Error, message);
 			Error?.Invoke(this, new Types.ErrorEventArgs(new Exception(message)));
 		}
 
 		private void DisconnectHandler(object sender, CloseEventArgs args) 
-			=> EmitLogs(LogLevel.Error, $"Websocket Connection Closed with following reason {args.Reason} and StatusCode {args.Status}");
+			=> EmitLogs(LogLevel.Error, $"Websocket Connection Closed with following reason \"{args.Reason}\" and StatusCode \"{args.Status}\"");
 	}
 }

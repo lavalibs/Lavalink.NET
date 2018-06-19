@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Lavalink.NET.Types
 {
@@ -125,7 +124,13 @@ namespace Lavalink.NET.Types
 		{
 			await _client.Websocket.SendMessage(JsonConvert.SerializeObject(new PausePacket("pause", GuildID.ToString(), pause)));
 
-			Status = Status.PAUSED;
+			if (pause)
+			{
+				Status = Status.PAUSED;
+			} else
+			{
+				Status = Status.PLAYING;
+			}
 		}
 
 		/// <summary>
@@ -159,9 +164,8 @@ namespace Lavalink.NET.Types
 			return _client.Websocket.SendMessage(JsonConvert.SerializeObject(new VoiceUpdatePacket("voiceUpdate", GuildID.ToString(), sessionID, voiceEvent)));
 		}
 
-		internal void PlayerEventEmitter(object sender, MessageEventArgs e)
+		internal void EmitEvent(dynamic lavalinkEvent)
 		{
-			dynamic lavalinkEvent = JObject.Parse(e.Message);
 			switch (lavalinkEvent.type)
 			{
 				case "TrackEndEvent":

@@ -48,9 +48,20 @@ namespace Lavalink.NET.Websocket
 			_cancellationToken = _cancellationTokenSource.Token;
 		}
 
-		public Task Connect()
+		public async void ConnectAsync()
 		{
-			return ConnectAsync();
+			try
+			{
+				await _ws.ConnectAsync(_uri, _cancellationToken);
+			}
+			catch (Exception e)
+			{
+				ConnectionFailed?.Invoke(this, new ConnectionFailedArgs(e));
+				return;
+			}
+			Debug?.Invoke(this, new DebugEventArgs("Websocket Connection succesfully established"));
+			Ready?.Invoke(this, new EventArgs());
+			StartListen();
 		}
 
 		public Task SendMessage(string message)
@@ -83,20 +94,6 @@ namespace Lavalink.NET.Websocket
 			}
 		}
 
-		private async Task ConnectAsync()
-		{
-			try
-			{
-				await _ws.ConnectAsync(_uri, _cancellationToken);
-			} catch (Exception e)
-			{
-				ConnectionFailed?.Invoke(this, new ConnectionFailedArgs(e));
-			}
-			Debug?.Invoke(this, new DebugEventArgs("Websocket Connection succesfully established"));
-			Ready?.Invoke(this, new EventArgs());
-			StartListen();
-		}
-
 		private async void StartListen()
 		{
 			byte[] buffer = new byte[ReceiveChunkSize];
@@ -126,6 +123,7 @@ namespace Lavalink.NET.Websocket
 					} while (!result.EndOfMessage);
 
 					if(stringResult.ToString().Length > 0) Message(this, new MessageEventArgs(stringResult.ToString()));
+					
 				}
 			}
 			catch (Exception)

@@ -11,6 +11,9 @@
     <Copyright>MIT</Copyright>
     <PackageProjectUrl>https://github.com/Dev-Yukine/Lavalink.NET</PackageProjectUrl>
     <PackageReleaseNotes>Initial Release</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/Dev-Yukine/Lavalink.NET</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Lavalink</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

@@ -42,7 +42,7 @@ namespace TestBot
 			await Task.Delay(-1);
 		}
 
-		private async Task InitLavalink(ReadyEventArgs args)
+		private Task InitLavalink(ReadyEventArgs args)
 		{
 			_lavalinkClient = new LavalinkClient(new ClientOptions {
 				UserID = _client.CurrentUser.Id.ToString(),
@@ -60,7 +60,9 @@ namespace TestBot
 			{
 				await _lavalinkClient.VoiceServerUpdateAsync(new VoiceServerUpdate(e.Guild.Id.ToString(), e.VoiceToken, e.Endpoint));
 			};
-			await _lavalinkClient.ConnectAsync();
+			_lavalinkClient.Start();
+
+			return Task.CompletedTask;
 		}
 	}
 

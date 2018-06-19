@@ -61,7 +61,7 @@ namespace Testbot_Discord.Net
 			await _lavalinkClient.VoiceServerUpdateAsync(new VoiceServerUpdate(Convert.ToString(voiceServer.Guild.Id), voiceServer.Token, voiceServer.Endpoint));
 		}
 
-		public async Task InitLavalink()
+		public Task InitLavalink()
 		{
 			_lavalinkClient = new LavalinkClient(new ClientOptions
 			{
@@ -73,7 +73,9 @@ namespace Testbot_Discord.Net
 				LogLevel = LogLevel.Debug
 			}, _client);
 
-			await _lavalinkClient.ConnectAsync();
+			_lavalinkClient.Start();
+
+			return Task.CompletedTask;
 		}
 
 		public async Task InstallCommands()
