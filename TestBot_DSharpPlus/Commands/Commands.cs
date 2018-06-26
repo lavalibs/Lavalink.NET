@@ -6,7 +6,7 @@ using DSharpPlus.Entities;
 using Lavalink.NET.Player;
 using Lavalink.NET.Types;
 
-namespace TestBot
+namespace TestBot_DSharpPlus.Commands
 {
 	public class Commands : BaseCommandModule
     {

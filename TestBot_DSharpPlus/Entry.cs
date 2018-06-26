@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TestBot
+namespace TestBot_DSharpPlus
 {
 	class Entry
 	{

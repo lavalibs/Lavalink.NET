@@ -5,9 +5,9 @@ using Lavalink.NET;
 using Lavalink.NET.Types;
 using Newtonsoft.Json;
 
-namespace TestBot.Util
+namespace TestBot_DSharpPlus.Lavalink
 {
-	public class LavalinkClient : Lavalink.NET.Client
+	public class LavalinkClient : global::Lavalink.NET.Client
 	{
 		private DiscordClient _client;
 

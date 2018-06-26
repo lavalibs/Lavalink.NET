@@ -8,13 +8,13 @@ using Discord.WebSocket;
 using Lavalink.NET;
 using Lavalink.NET.Types;
 using Microsoft.Extensions.DependencyInjection;
-using Testbot_Discord.Net.Util;
+using Testbot_Discord.Net.Lavalink;
 
 namespace Testbot_Discord.Net
 {
     class Client
     {
-		public static Lavalink.NET.Client _lavalinkClient;
+		public static global::Lavalink.NET.Client _lavalinkClient;
 
 		private CommandService _commands;
 		private DiscordSocketClient _client;

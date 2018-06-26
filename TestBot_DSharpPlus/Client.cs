@@ -7,9 +7,9 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Net.WebSocket;
 using Lavalink.NET;
 using Lavalink.NET.Types;
-using TestBot.Util;
+using TestBot_DSharpPlus.Lavalink;
 
-namespace TestBot
+namespace TestBot_DSharpPlus
 {
 	public class Client
     {
@@ -33,7 +33,7 @@ namespace TestBot
 				StringPrefixes = new string[] { "." }
 			});
 
-			_commands.RegisterCommands<Commands>();
+			_commands.RegisterCommands<Commands.Commands>();
 
 			await _client.ConnectAsync();
 
@@ -50,7 +50,7 @@ namespace TestBot
 				HostWS = "ws://localhost:8060",
 				Password = "youshallnotpass",
 				UseLogging = true,
-				LogLevel = Lavalink.NET.Types.LogLevel.Debug },
+				LogLevel = global::Lavalink.NET.Types.LogLevel.Debug },
 				_client);
 			_client.VoiceStateUpdated += async e =>
 			{

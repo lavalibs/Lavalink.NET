@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Audio;
 using Discord.WebSocket;
 using Lavalink.NET;
 using Lavalink.NET.Types;
 
-namespace Testbot_Discord.Net.Util
+namespace Testbot_Discord.Net.Lavalink
 {
-	class LavalinkClient : Lavalink.NET.Client
+	class LavalinkClient : global::Lavalink.NET.Client
 	{
-		public readonly Dictionary<ulong, IAudioChannel> AudioClientStore = new Dictionary<ulong, IAudioChannel>();
 		private DiscordSocketClient _client;
 
 		public LavalinkClient(ClientOptions options, DiscordSocketClient client) 
@@ -29,13 +26,13 @@ namespace Testbot_Discord.Net.Util
 					if (!(channel is IAudioChannel voicechannel)) throw new Exception("Wrong channel type.");
 
 					await voicechannel.ConnectAsync(false, false, true);
-
-					AudioClientStore.Add(packet.DiscordVoicePacket.GuildID, voicechannel);
 				} else
 				{
-					AudioClientStore.TryGetValue(packet.DiscordVoicePacket.GuildID, out IAudioChannel voicechannel);
+					SocketChannel channel = _client.GetChannel(packet.DiscordVoicePacket.ChannelID ?? default(ulong));
+
+					if (!(channel is IAudioChannel voicechannel)) throw new Exception("Wrong channel type.");
+
 					await voicechannel.DisconnectAsync();
-					AudioClientStore.Remove(packet.DiscordVoicePacket.GuildID);
 				}
 			}
 		}
