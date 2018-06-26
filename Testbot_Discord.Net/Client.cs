@@ -39,7 +39,7 @@ namespace Testbot_Discord.Net
 
 			_client.Log += Log;
 
-			await _client.LoginAsync(TokenType.Bot, "MzE5OTMwMjUyNjMxNDc0MTc3.Dg0R0A.Jq0YJpLbKb_18WFljiNjCP8m7OE");
+			await _client.LoginAsync(TokenType.Bot, "");
 			await _client.StartAsync();
 
 			_client.Ready += InitLavalink;
@@ -51,24 +51,22 @@ namespace Testbot_Discord.Net
 			await Task.Delay(-1);
 		}
 
-		public async Task VoiceStateUpdate(SocketUser user, SocketVoiceState before, SocketVoiceState after)
+		private async Task VoiceStateUpdate(SocketUser user, SocketVoiceState before, SocketVoiceState after)
 		{
-			SocketGuildUser member = after.VoiceChannel.Guild.GetUser(user.Id);
-			SocketGuildUser selfmember = after.VoiceChannel.Guild.GetUser(_client.CurrentUser.Id);
 			await _lavalinkClient.VoiceStateUpdateAsync(new VoiceStateUpdate {
-				ChannelID = after.VoiceChannel.Id,
-				GuildID = after.VoiceChannel.Guild.Id,
+				ChannelID = after.VoiceChannel?.Id ?? before.VoiceChannel.Id,
+				GuildID = after.VoiceChannel?.Guild.Id ?? before.VoiceChannel.Guild.Id,
 				SessionID = after.VoiceSessionId,
 				UserID = user.Id,
-				Deaf = member.IsDeafened,
-				Mute = member.IsMuted,
-				Suppress = member.IsSuppressed,
-				SelfDeaf = selfmember.IsSelfDeafened,
-				SelfMute = selfmember.IsSelfMuted
+				Deaf = after.IsDeafened,
+				Mute = after.IsMuted,
+				Suppress = after.IsSuppressed,
+				SelfDeaf = after.IsSelfDeafened,
+				SelfMute = after.IsSelfMuted
 			});
 		}
 
-		public async Task VoiceServerUpdate(SocketVoiceServer voiceServer)
+		private async Task VoiceServerUpdate(SocketVoiceServer voiceServer)
 		{
 			await _lavalinkClient.VoiceServerUpdateAsync(new VoiceServerUpdate {
 				Endpoint = voiceServer.Endpoint,
@@ -77,7 +75,7 @@ namespace Testbot_Discord.Net
 			});
 		}
 
-		public Task InitLavalink()
+		private Task InitLavalink()
 		{
 			_lavalinkClient = new LavalinkClient(new ClientOptions
 			{
@@ -94,17 +92,16 @@ namespace Testbot_Discord.Net
 			return Task.CompletedTask;
 		}
 
-		public async Task InstallCommands()
+		private async Task InstallCommands()
 		{
 			_client.MessageReceived += HandleCommand;
 
 			await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
 		}
 
-		public async Task HandleCommand(SocketMessage messageParam)
+		private async Task HandleCommand(SocketMessage messageParam)
 		{
-			var message = messageParam as SocketUserMessage;
-			if (message == null) return;
+			if (!(messageParam is SocketUserMessage message)) return;
 			int argPos = 0;
 			if (!(message.HasCharPrefix('.', ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))) return;
 			var context = new SocketCommandContext(_client, message);

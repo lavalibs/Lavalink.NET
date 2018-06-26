@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
+using Lavalink.NET.Player;
 using Lavalink.NET.Types;
 
 namespace Testbot_Discord.Net.Commands
@@ -29,7 +30,7 @@ namespace Testbot_Discord.Net.Commands
 		}
 
 		[Command("play")]
-		public async Task Play(string query)
+		public async Task Play([Remainder] string query)
 		{
 			Player player = Client._lavalinkClient.Players.GetPlayer(Context.Guild.Id);
 			List<Track> tracks = await Client._lavalinkClient.LoadTracksAsync(query);
