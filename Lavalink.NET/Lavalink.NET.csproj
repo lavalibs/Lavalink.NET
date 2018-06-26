@@ -3,17 +3,26 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <Authors>Yukine</Authors>
-    <Product />
-    <Company />
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Product>Lavalink.NET</Product>
+    <Company>Yukine</Company>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <PackageLicenseUrl>https://github.com/Dev-Yukine/Lavalink.NET/blob/master/LICENSE</PackageLicenseUrl>
     <Copyright>MIT</Copyright>
     <PackageProjectUrl>https://github.com/Dev-Yukine/Lavalink.NET</PackageProjectUrl>
-    <PackageReleaseNotes>Initial Release</PackageReleaseNotes>
+    <PackageReleaseNotes>Bug Fixes and refactoring.</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/Dev-Yukine/Lavalink.NET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Lavalink</PackageTags>
+    <Description>A C# Library to interact with Lavalink</Description>
+    <PackageId>Lavalink.NET</PackageId>
+    <Version>1.0.1</Version>
+    <FileVersion>1.0.0</FileVersion>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netcoreapp2.0\Lavalink.NET.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

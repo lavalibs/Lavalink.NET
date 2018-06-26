@@ -39,7 +39,7 @@ namespace Testbot_Discord.Net
 
 			_client.Log += Log;
 
-			await _client.LoginAsync(TokenType.Bot, "");
+			await _client.LoginAsync(TokenType.Bot, "MzE5OTMwMjUyNjMxNDc0MTc3.Dg0R0A.Jq0YJpLbKb_18WFljiNjCP8m7OE");
 			await _client.StartAsync();
 
 			_client.Ready += InitLavalink;
@@ -53,19 +53,35 @@ namespace Testbot_Discord.Net
 
 		public async Task VoiceStateUpdate(SocketUser user, SocketVoiceState before, SocketVoiceState after)
 		{
-			await _lavalinkClient.VoiceStateUpdateAsync(new VoiceStateUpdate(Convert.ToString(after.VoiceChannel.Guild.Id), Convert.ToString(after.VoiceChannel.Id), Convert.ToString(user.Id), after.VoiceSessionId));
+			SocketGuildUser member = after.VoiceChannel.Guild.GetUser(user.Id);
+			SocketGuildUser selfmember = after.VoiceChannel.Guild.GetUser(_client.CurrentUser.Id);
+			await _lavalinkClient.VoiceStateUpdateAsync(new VoiceStateUpdate {
+				ChannelID = after.VoiceChannel.Id,
+				GuildID = after.VoiceChannel.Guild.Id,
+				SessionID = after.VoiceSessionId,
+				UserID = user.Id,
+				Deaf = member.IsDeafened,
+				Mute = member.IsMuted,
+				Suppress = member.IsSuppressed,
+				SelfDeaf = selfmember.IsSelfDeafened,
+				SelfMute = selfmember.IsSelfMuted
+			});
 		}
 
 		public async Task VoiceServerUpdate(SocketVoiceServer voiceServer)
 		{
-			await _lavalinkClient.VoiceServerUpdateAsync(new VoiceServerUpdate(Convert.ToString(voiceServer.Guild.Id), voiceServer.Token, voiceServer.Endpoint));
+			await _lavalinkClient.VoiceServerUpdateAsync(new VoiceServerUpdate {
+				Endpoint = voiceServer.Endpoint,
+				GuildID = voiceServer.Guild.Id,
+				Token = voiceServer.Token
+			});
 		}
 
 		public Task InitLavalink()
 		{
 			_lavalinkClient = new LavalinkClient(new ClientOptions
 			{
-				UserID = _client.CurrentUser.Id.ToString(),
+				UserID = _client.CurrentUser.Id,
 				HostRest = "http://localhost:2333",
 				HostWS = "ws://localhost:8060",
 				Password = "youshallnotpass",

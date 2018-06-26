@@ -1,21 +1,9 @@
 ﻿using System.Threading.Tasks;
+using Lavalink.NET.Types;
 using Newtonsoft.Json;
 
-namespace Lavalink.NET.Types
+namespace Lavalink.NET.Player
 {
-	/// <summary>
-	/// Status enum for players.
-	/// </summary>
-	public enum Status
-	{
-		INSTANTIATED,
-		PLAYING,
-		PAUSED,
-		ENDED,
-		ERRORED,
-		STUCK
-	}
-
 	/// <summary>
 	/// The Player class to use.
 	/// </summary>
@@ -39,14 +27,38 @@ namespace Lavalink.NET.Types
 		/// <summary>
 		/// The GuildID of this player.
 		/// </summary>
-		public ulong GuildID { get; }
+		public ulong GuildID { get; internal set; }
+
 		/// <summary>
 		/// The current Status od this player.
 		/// </summary>
-		public Status Status { get; set; }
+		public Status Status { get; private set; } = Status.INSTANTIATED;
+
+		/// <summary>
+		/// Boolean representing if this Player is connected to an Channel.
+		/// </summary>
+		public bool Connected { get; private set; } = false;
+
+		/// <summary>
+		/// The position of the Player from the current playing song, this is -1 when there is no Song playing.
+		/// </summary>
+		public long Position
+		{
+			get {
+				if (Status == Status.PLAYING) { return _position; }
+				else return -1;
+			}
+
+			internal set { _position = value; }
+		}
+
+		/// <summary>
+		/// Holds the value for the Position.
+		/// </summary>
+		private long _position;
 		
 		/// <summary>
-		/// Client instance of this player.
+		/// Client instance that created this player.
 		/// </summary>
 		private Client _client;
 
@@ -59,7 +71,6 @@ namespace Lavalink.NET.Types
 		{
 			_client = client;
 			GuildID = guildID;
-			Status = Status.INSTANTIATED;
 
 			End += PlayerEndEvent;
 			Exeption += PlayerExeptionEvent;
@@ -73,18 +84,22 @@ namespace Lavalink.NET.Types
 		/// <param name="mute"> should this player join muted. </param>
 		/// <param name="deaf"> should this player join deafen. </param>
 		/// <returns> Task resolving with void. </returns>
-		public Task JoinAsync(string channelID, bool mute = false, bool deaf = false)
+		public async Task JoinAsync(ulong channelID, bool mute = false, bool deaf = false)
 		{
-			return _client.SendAsync(GuildID, JsonConvert.SerializeObject(new DiscordOP4Packet(new DiscordVoicePacket(GuildID.ToString(), channelID, mute, deaf))));
+			await _client.SendAsync(new DiscordOP4Packet(GuildID, channelID, mute, deaf));
+
+			Connected = true;
 		}
 
 		/// <summary>
 		/// Method to Leave VoiceChannel on this Server.
 		/// </summary>
 		/// <returns> Task resolving with void. </returns>
-		public Task LeaveAsync()
+		public async Task LeaveAsync()
 		{
-			return _client.SendAsync(GuildID, JsonConvert.SerializeObject(new DiscordOP4Packet(new DiscordVoicePacket(GuildID.ToString(), null, false, false))));
+			await _client.SendAsync(new DiscordOP4Packet(GuildID, null, false, false));
+
+			Connected = false;
 		}
 
 		/// <summary>
@@ -96,7 +111,14 @@ namespace Lavalink.NET.Types
 		/// <returns> Task resolving with void. </returns>
 		public async Task PlayAsync(string track, int? start = 0, int? end = 0)
 		{
-			await _client.Websocket.SendMessage(JsonConvert.SerializeObject(new PlayPacket("play", GuildID.ToString(), track, start.ToString(), end.ToString())));
+			await _client.Websocket.SendMessageAsync(JsonConvert.SerializeObject(new PlayPacket
+			{
+				OPCode = "play",
+				GuildID = GuildID.ToString(),
+				Track = track,
+				StartTime = start.ToString(),
+				EndTime = end.ToString()
+			}));
 
 			Status = Status.PLAYING;
 		}
@@ -110,7 +132,13 @@ namespace Lavalink.NET.Types
 		/// <returns> Task resolving with void. </returns>
 		public async Task PlayAsync(Track track, int? start = 0, int? end = 0)
 		{
-			await _client.Websocket.SendMessage(JsonConvert.SerializeObject(new PlayPacket("play", GuildID.ToString(), track.TrackString, start.ToString(), end.ToString())));
+			await _client.Websocket.SendMessageAsync(JsonConvert.SerializeObject(new PlayPacket {
+				OPCode = "play",
+				GuildID = GuildID.ToString(),
+				Track = track.TrackString,
+				StartTime = start.ToString(),
+				EndTime = end.ToString()
+			}));
 
 			Status = Status.PLAYING;
 		}
@@ -118,11 +146,15 @@ namespace Lavalink.NET.Types
 		/// <summary>
 		/// Method to pause/resume the player
 		/// </summary>
-		/// <param name="paused"> boolean </param>
+		/// <param name="pause"> boolean </param>
 		/// <returns> Task resolving with void. </returns>
 		public async Task PauseAsync(bool pause = true)
 		{
-			await _client.Websocket.SendMessage(JsonConvert.SerializeObject(new PausePacket("pause", GuildID.ToString(), pause)));
+			await _client.Websocket.SendMessageAsync(JsonConvert.SerializeObject(new PausePacket {
+				OPCode = "pause",
+				Pause = pause,
+				GuildID = GuildID.ToString()
+			}));
 
 			if (pause)
 			{
@@ -140,7 +172,12 @@ namespace Lavalink.NET.Types
 		/// <returns> Task resolving with void. </returns>
 		public Task SeekAsync(int position)
 		{
-			return _client.Websocket.SendMessage(JsonConvert.SerializeObject(new SeekPacket("seek", GuildID.ToString(), position)));
+			return _client.Websocket.SendMessageAsync(JsonConvert.SerializeObject(new SeekPacket
+			{
+				OPCode = "seek",
+				GuildID = GuildID.ToString(),
+				Position = position
+			}));
 		}
 
 		/// <summary>
@@ -150,7 +187,12 @@ namespace Lavalink.NET.Types
 		/// <returns> Task resolving with void. </returns>
 		public Task SetVolumeAsync(int volume)
 		{
-			return _client.Websocket.SendMessage(JsonConvert.SerializeObject(new VolumePacket("volume", GuildID.ToString(), volume)));
+			return _client.Websocket.SendMessageAsync(JsonConvert.SerializeObject(new VolumePacket
+			{
+				OPCode = "volume",
+				GuildID = GuildID.ToString(),
+				Volume = volume
+			}));
 		}
 
 		/// <summary>
@@ -161,7 +203,13 @@ namespace Lavalink.NET.Types
 		/// <returns> Task resolving with void. </returns>
 		public Task VoiceUpdateAsync(string sessionID, VoiceServerUpdate voiceEvent)
 		{
-			return _client.Websocket.SendMessage(JsonConvert.SerializeObject(new VoiceUpdatePacket("voiceUpdate", GuildID.ToString(), sessionID, voiceEvent)));
+			return _client.Websocket.SendMessageAsync(JsonConvert.SerializeObject(new VoiceUpdatePacket
+			{
+				OPCode = "voiceUpdate",
+				SessionID = sessionID,
+				UpdateEvent = voiceEvent,
+				GuildID = GuildID.ToString()
+			}));
 		}
 
 		internal void EmitEvent(dynamic lavalinkEvent)
@@ -169,13 +217,13 @@ namespace Lavalink.NET.Types
 			switch (lavalinkEvent.type)
 			{
 				case "TrackEndEvent":
-					End(this, new TrackEndEventArgs(lavalinkEvent.op, lavalinkEvent.track, lavalinkEvent.guildId, lavalinkEvent.type, lavalinkEvent.reason));
+					End(this, JsonConvert.DeserializeObject<TrackEndEventArgs>(lavalinkEvent));
 					break;
 				case "TrackExeptionEvent":
-					Exeption(this, new TrackExceptionEventArgs(lavalinkEvent.op, lavalinkEvent.type, lavalinkEvent.guildId, lavalinkEvent.type, lavalinkEvent.error));
+					Exeption(this, JsonConvert.DeserializeObject<TrackExceptionEventArgs>(lavalinkEvent));
 					break;
 				case "TrackStuckEvent":
-					Stuck(this, new TrackStuckEventArgs(lavalinkEvent.op, lavalinkEvent.track, lavalinkEvent.guildId, lavalinkEvent.type, lavalinkEvent.thresholdMs));
+					Stuck(this, JsonConvert.DeserializeObject<TrackStuckEventArgs>(lavalinkEvent));
 					break;
 			}
 		}

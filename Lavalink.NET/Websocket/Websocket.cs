@@ -7,13 +7,13 @@ using Lavalink.NET.Types;
 
 namespace Lavalink.NET.Websocket
 {
-	public class WebsocketOptions
+	internal class WebsocketOptions
 	{
-		public string Host { get; set; }
-		public string Password { get; set; }
-		public string UserID { get; set; }
+		internal string Host { get; set; }
+		internal string Password { get; set; }
+		internal string UserID { get; set; }
 
-		public WebsocketOptions(string host, string password, string userID)
+		internal WebsocketOptions(string host, string password, string userID)
 		{
 			Host = host ?? throw new ArgumentNullException(nameof(host));
 			Password = password ?? throw new ArgumentNullException(nameof(password));
@@ -21,13 +21,14 @@ namespace Lavalink.NET.Websocket
 		}
 	}
 
-	public class Websocket
+	internal class Websocket
 	{
-		public event ConnectionFailedEvent ConnectionFailed;
-		public event MessageEvent Message;
-		public event EventHandler Ready;
-		public event CloseEvent Close;
-		public event DebugEvent Debug;
+		internal event ConnectionFailedEvent ConnectionFailed;
+		internal event MessageEvent Message;
+		internal event EventHandler Ready;
+		internal event CloseEvent Close;
+		internal event ErrorEvent Error;
+		internal event DebugEvent Debug;
 
 		private const int ReceiveChunkSize = 1024;
 		private const int SendChunkSize = 1024;
@@ -37,7 +38,7 @@ namespace Lavalink.NET.Websocket
 		private readonly ClientWebSocket _ws;
 		private readonly Uri _uri;
 
-		public Websocket(WebsocketOptions options)
+		internal Websocket(WebsocketOptions options)
 		{
 			_ws = new ClientWebSocket();
 			_ws.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);
@@ -48,7 +49,7 @@ namespace Lavalink.NET.Websocket
 			_cancellationToken = _cancellationTokenSource.Token;
 		}
 
-		public async void ConnectAsync()
+		internal async void ConnectAsync()
 		{
 			try
 			{
@@ -64,12 +65,7 @@ namespace Lavalink.NET.Websocket
 			StartListen();
 		}
 
-		public Task SendMessage(string message)
-		{
-			return SendMessageAsync(message);
-		}
-
-		private async Task SendMessageAsync(string message)
+		internal async Task SendMessageAsync(string message)
 		{
 			if (_ws.State != WebSocketState.Open)
 			{
@@ -122,8 +118,9 @@ namespace Lavalink.NET.Websocket
 
 					} while (!result.EndOfMessage);
 
-					if(stringResult.ToString().Length > 0) Message(this, new MessageEventArgs(stringResult.ToString()));
-					
+					if (stringResult.ToString().Length > 0) ThreadPool.QueueUserWorkItem((Object stateInfo) => InvokeMessageEvent(new MessageEventArgs(stringResult.ToString())));
+
+
 				}
 			}
 			catch (Exception)
@@ -133,6 +130,18 @@ namespace Lavalink.NET.Websocket
 			finally
 			{
 				_ws.Dispose();
+			}
+		}
+
+		private void InvokeMessageEvent(MessageEventArgs args)
+		{
+			try
+			{
+				Message.Invoke(this, args);
+			}
+			catch (Exception e)
+			{
+				Error.Invoke(this, new ErrorEventArgs(e));
 			}
 		}
 	}

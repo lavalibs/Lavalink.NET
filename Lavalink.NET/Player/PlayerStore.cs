@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Lavalink.NET.Types
+namespace Lavalink.NET.Player
 {
 	/// <summary>
 	/// Store of all Players
 	/// </summary>
-    public class PlayerStore : Dictionary<string, Player>
+    public class PlayerStore : Dictionary<ulong, Player>
     {
 		private readonly Client _client;
 
@@ -24,7 +23,7 @@ namespace Lavalink.NET.Types
 		/// </summary>
 		/// <param name="key"> GuildID of the Player </param>
 		/// <returns> Player instance </returns>
-		public Player GetPlayer(string key)
+		public Player GetPlayer(ulong key)
 		{
 			if (TryGetValue(key, out Player player))
 			{
@@ -32,7 +31,7 @@ namespace Lavalink.NET.Types
 			}
 			else
 			{
-				player = new Player(_client, Convert.ToUInt64(key));
+				player = new Player(_client, key);
 				Add(key, player);
 				return player;
 			}

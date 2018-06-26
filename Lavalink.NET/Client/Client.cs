@@ -9,6 +9,7 @@ using Lavalink.NET.Types;
 using Serilog;
 using Lavalink.NET.Websocket;
 using System.Threading;
+using Lavalink.NET.Player;
 
 namespace Lavalink.NET
 {
@@ -35,7 +36,7 @@ namespace Lavalink.NET
 		/// <summary>
 		/// The UserID of your Bot User.
 		/// </summary>
-		public string UserID { internal get; set; }
+		public ulong UserID { internal get; set; }
 
 		/// <summary>
 		/// determine if the build in Logging module should be used.
@@ -46,8 +47,6 @@ namespace Lavalink.NET
 		/// The LogLevel of this Client.
 		/// </summary>
 		public LogLevel LogLevel { internal get; set; } = LogLevel.Info;
-
-		public ClientOptions() { }
 	}
 
 	/// <summary>
@@ -71,7 +70,7 @@ namespace Lavalink.NET
 		public event CloseEvent Disconnect;
 
 		/// <summary>
-		/// Event that gets triggerd when this Client encounter an Error.
+		/// Event that gets triggerd when this Client encounters an Error.
 		/// </summary>
 		public event ErrorEvent Error;
 
@@ -79,8 +78,11 @@ namespace Lavalink.NET
 		/// Event what emits debug messages.
 		/// </summary>
 		public event DebugEvent Debug;
-		
-		/// public event StatsEvent Stats;
+
+		/// <summary>
+		/// Event that gets triggerd when a Stats Message from Lavalink is received.
+		/// </summary>
+		public event StatsEvent Stats;
 
 		/// <summary>
 		/// The Store of all Players from this Client.
@@ -90,12 +92,12 @@ namespace Lavalink.NET
 		/// <summary>
 		/// The Store for all VoiceStates.
 		/// </summary>
-		internal Dictionary<string, string> VoiceStates = new Dictionary<string, string>();
+		internal Dictionary<ulong, string> VoiceStates = new Dictionary<ulong, string>();
 
 		/// <summary>
 		/// The Store for all VoiceServers.
 		/// </summary>
-		internal Dictionary<string, VoiceServerUpdate> VoiceServers = new Dictionary<string, VoiceServerUpdate>();
+		internal Dictionary<ulong, VoiceServerUpdate> VoiceServers = new Dictionary<ulong, VoiceServerUpdate>();
 
 		/// <summary>
 		/// The Websocket instance for this Client.
@@ -119,7 +121,7 @@ namespace Lavalink.NET
 		public Client(ClientOptions options)
 		{
 			_config = options;
-			Websocket = new Websocket.Websocket(new WebsocketOptions(_config.HostWS, _config.Password, _config.UserID));
+			Websocket = new Websocket.Websocket(new WebsocketOptions(_config.HostWS, _config.Password, _config.UserID.ToString()));
 			Players = new PlayerStore(this);
 
 			if (options.UseLogging) Logger = new LoggerConfiguration().MinimumLevel.ControlledBy(new Serilog.Core.LoggingLevelSwitch( (Serilog.Events.LogEventLevel) _config.LogLevel)).WriteTo.Console().CreateLogger();
@@ -136,13 +138,19 @@ namespace Lavalink.NET
 		}
 
 		/// <summary>
+		/// Abstracted method you need to implement yourself, this method should either use the data to connect to a VoiceChannel externally or serialize to a string and send to the Discord Websocket.
+		/// </summary>
+		/// <param name="voicePacket"> The actuall packet this can be used to connect external or directly send to the Websocket. </param>
+		/// <returns> Task resolving with void. </returns>
+		public abstract Task SendAsync(DiscordOP4Packet voicePacket);
+
+		/// <summary>
 		/// Method to Connect to the Lavalink Websocket.
 		/// </summary>
 		/// <returns> void. </returns>
 		public void Start()
 		{
-			ThreadStart threadMethod = new ThreadStart(Websocket.ConnectAsync);
-			Thread websocketThread = new Thread(threadMethod);
+			Thread websocketThread = new Thread(new ThreadStart(Websocket.ConnectAsync));
 			websocketThread.Start();
 		}
 
@@ -177,7 +185,7 @@ namespace Lavalink.NET
 		/// <returns> An Array of tracks the Rest API returns, can be empty if no result was found. </returns>
 		public async Task<List<Track>> LoadTracksAsync(Uri query)
 		{
-			HttpWebRequest request = (HttpWebRequest) WebRequest.Create(_config.HostRest + "/loadtracks?identifier=" + query);
+			HttpWebRequest request = (HttpWebRequest) WebRequest.Create(_config.HostRest + "/loadtracks?identifier=" + query.AbsoluteUri);
 
 			request.Headers.Add("Authorization", _config.Password);
 			request.Headers.Add("Content-Type", "application/json");
@@ -232,14 +240,6 @@ namespace Lavalink.NET
 			return ConnectVoiceAsync(packet.GuildID);
 		}
 
-		/// <summary>
-		/// Abstracted method you need to implement yourself, this method should forward to the Discord Websocket.
-		/// </summary>
-		/// <param name="guildID"> the GuildID this packet belongs to. </param>
-		/// <param name="packetJSON"> The actuall packet as string. </param>
-		/// <returns> Task resolving with void. </returns>
-		public abstract Task SendAsync(ulong guildID, string packetJSON);
-
 		internal void EmitLogs(LogLevel level, string message)
 		{
 			if (!_config.UseLogging || _config.LogLevel > level) return;
@@ -249,7 +249,7 @@ namespace Lavalink.NET
 			else Logger.Error(message);
 		}
 
-		private async Task<bool> ConnectVoiceAsync(string guildID)
+		private async Task<bool> ConnectVoiceAsync(ulong guildID)
 		{
 			VoiceStates.TryGetValue(guildID, out string state);
 			VoiceServers.TryGetValue(guildID, out VoiceServerUpdate voiceServerUpdate);
@@ -267,8 +267,6 @@ namespace Lavalink.NET
 
 			Debug(this, new DebugEventArgs($"Received Websocket message from Lavalink with OP \"{lavalinkEvent.op}\""));
 
-			Logger.Debug(e.Message);
-
 			Message?.Invoke(this, new MessageEventArgs(lavalinkEvent));
 
 			if (lavalinkEvent.op == "event")
@@ -276,15 +274,26 @@ namespace Lavalink.NET
 				if (lavalinkEvent.guildId != null)
 				{
 					Debug(this, new DebugEventArgs($"Received Player Event with GuildID {lavalinkEvent.guildId}, emit event on player."));
-					Player player = Players.GetPlayer(Convert.ToString(lavalinkEvent.guildId));
-					player.EmitEvent(e.Message);
+					Player.Player player = Players.GetPlayer(Convert.ToUInt64(lavalinkEvent.guildId));
+					player.EmitEvent(lavalinkEvent);
 				} else {
 					Debug(this, new DebugEventArgs($"Received Lavalink event with \"event\" op but no guild id\n{lavalinkEvent}"));
 				}
 			} else if (lavalinkEvent.op == "stats")
 			{
-				// TODO make stats event + args
+				Stats?.Invoke(this, JsonConvert.DeserializeObject<StatsEventArgs>(e.Message));
+			} else if (lavalinkEvent.op == "playerUpdate")
+			{
+				Player.Player player = Players.GetPlayer(Convert.ToUInt64(lavalinkEvent.guildId));
+				player.Position = Convert.ToUInt64(lavalinkEvent.state.position);
 			}
+		}
+
+		private void ErrorHandler(object sender, Types.ErrorEventArgs args)
+		{
+			var message = $"Encountered following exeption while executing events {args.Error.Message}";
+			EmitLogs(LogLevel.Error, message);
+			Error?.Invoke(this, args);
 		}
 
 		private void DebugHandler(object sender, DebugEventArgs args) 

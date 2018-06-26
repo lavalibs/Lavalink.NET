@@ -1,14 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Discord.Audio;
 using Discord.WebSocket;
 using Lavalink.NET;
-using Newtonsoft.Json.Linq;
+using Lavalink.NET.Types;
 
 namespace Testbot_Discord.Net.Util
 {
 	class LavalinkClient : Lavalink.NET.Client
 	{
-		DiscordSocketClient _client;
+		public readonly Dictionary<ulong, IAudioClient> AudioClientStore = new Dictionary<ulong, IAudioClient>();
+		private DiscordSocketClient _client;
 
 		public LavalinkClient(ClientOptions options, DiscordSocketClient client) 
 			: base(options)
@@ -16,20 +19,23 @@ namespace Testbot_Discord.Net.Util
 			_client = client;
 		}
 
-		public override Task SendAsync(ulong guildID, string packetJSON)
+		public override async Task SendAsync(DiscordOP4Packet packet)
 		{
-			if (_client.GetGuild(guildID) != null)
-			{
-				dynamic json = JObject.Parse(packetJSON);
+			if (_client.GetGuild(packet.DiscordVoicePacket.GuildID) != null) {
+				if (packet.DiscordVoicePacket.ChannelID != null) {
+					SocketChannel channel = _client.GetChannel(packet.DiscordVoicePacket.ChannelID.Value);
 
-				SocketChannel channel = _client.GetChannel(Convert.ToUInt64(json.d.channel_id));
+					if (!(channel is SocketVoiceChannel voicechannel)) throw new Exception("Wrong channel type.");
 
-				if (!(channel is SocketVoiceChannel voicechannel)) return Task.FromException(new Exception("Wrong channel type."));
-
-				voicechannel.ConnectAsync(false, false, true);
+					IAudioClient audioclient = await voicechannel.ConnectAsync(false, false, true);
+					AudioClientStore.Add(packet.DiscordVoicePacket.GuildID, audioclient);
+				} else
+				{
+					AudioClientStore.TryGetValue(packet.DiscordVoicePacket.ChannelID.Value, out IAudioClient audioClient);
+					await audioClient.StopAsync();
+					AudioClientStore.Remove(packet.DiscordVoicePacket.GuildID);
+				}
 			}
-
-			return Task.CompletedTask;
 		}
 	}
 }

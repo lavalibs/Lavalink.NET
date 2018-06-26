@@ -2,6 +2,8 @@
 using DSharpPlus;
 using DSharpPlus.Net.WebSocket;
 using Lavalink.NET;
+using Lavalink.NET.Types;
+using Newtonsoft.Json;
 
 namespace TestBot.Util
 {
@@ -15,12 +17,12 @@ namespace TestBot.Util
 			_client = client;
 		}
 
-		public override Task SendAsync(ulong guildID, string packetJSON)
+		public override Task SendAsync(DiscordOP4Packet packet)
 		{
-			if (_client.Guilds.ContainsKey(guildID))
+			if (_client.Guilds.ContainsKey(packet.DiscordVoicePacket.GuildID))
 			{
 				WebsocketStorage.storage.TryGetValue(1, out BaseWebSocketClient ws);
-				ws.SendMessage(packetJSON);
+				ws.SendMessage(JsonConvert.SerializeObject(packet));
 			}
 			return Task.CompletedTask;
 		}

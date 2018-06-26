@@ -45,7 +45,7 @@ namespace TestBot
 		private Task InitLavalink(ReadyEventArgs args)
 		{
 			_lavalinkClient = new LavalinkClient(new ClientOptions {
-				UserID = _client.CurrentUser.Id.ToString(),
+				UserID = _client.CurrentUser.Id,
 				HostRest = "http://localhost:2333",
 				HostWS = "ws://localhost:8060",
 				Password = "youshallnotpass",
@@ -54,11 +54,27 @@ namespace TestBot
 				_client);
 			_client.VoiceStateUpdated += async e =>
 			{
-				await _lavalinkClient.VoiceStateUpdateAsync(new VoiceStateUpdate(e.After.Guild.Id.ToString(), e.Channel?.Id.ToString(), e.User.Id.ToString(), e.SessionId));
+				await _lavalinkClient.VoiceStateUpdateAsync(new VoiceStateUpdate
+				{
+					ChannelID = e.Channel.Id,
+					GuildID = e.Guild.Id,
+					SessionID = e.SessionId,
+					UserID = e.User.Id,
+					Deaf = e.After.IsServerDeafened,
+					Mute = e.After.IsServerMuted,
+					Suppress = e.After.IsSuppressed,
+					SelfDeaf = e.After.IsSelfDeafened,
+					SelfMute = e.After.IsSelfMuted
+				});
 			};
 			_client.VoiceServerUpdated += async e =>
 			{
-				await _lavalinkClient.VoiceServerUpdateAsync(new VoiceServerUpdate(e.Guild.Id.ToString(), e.VoiceToken, e.Endpoint));
+				await _lavalinkClient.VoiceServerUpdateAsync(new VoiceServerUpdate
+				{
+					Endpoint = e.Endpoint,
+					GuildID = e.Guild.Id,
+					Token = e.VoiceToken
+				});
 			};
 			_lavalinkClient.Start();
 
