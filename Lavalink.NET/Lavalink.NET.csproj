@@ -33,7 +33,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     <PackageTags>Lavalink</PackageTags>
     <Description>A C# Library to interact with Lavalink</Description>
     <PackageId>Lavalink.NET</PackageId>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <FileVersion>1.0.0</FileVersion>
     <AssemblyVersion>1.0.0</AssemblyVersion>
   </PropertyGroup>

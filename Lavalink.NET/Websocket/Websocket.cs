@@ -23,12 +23,12 @@ namespace Lavalink.NET.Websocket
 
 	internal class Websocket
 	{
-		internal event ConnectionFailedEvent ConnectionFailed;
-		internal event MessageEvent Message;
-		internal event EventHandler Ready;
-		internal event CloseEvent Close;
-		internal event ErrorEvent Error;
-		internal event DebugEvent Debug;
+		internal event Func<Exception, Task> ConnectionFailed;
+		internal event Func<string, Task> Message;
+		internal event Func<Task> Ready;
+		internal event Func<WebSocketCloseStatus, string, Task> Close;
+		internal event Func<Exception, Task> Error;
+		internal event Func<string, Task> Debug;
 
 		private const int ReceiveChunkSize = 1024;
 		private const int SendChunkSize = 1024;
@@ -57,11 +57,11 @@ namespace Lavalink.NET.Websocket
 			}
 			catch (Exception e)
 			{
-				ConnectionFailed?.Invoke(this, new ConnectionFailedArgs(e));
+				ConnectionFailed?.Invoke(e);
 				return;
 			}
-			Debug?.Invoke(this, new DebugEventArgs("Websocket Connection succesfully established"));
-			Ready?.Invoke(this, new EventArgs());
+			Debug?.Invoke("Websocket Connection succesfully established");
+			Ready?.Invoke();
 			StartListen();
 		}
 
@@ -108,7 +108,7 @@ namespace Lavalink.NET.Websocket
 						if (result.MessageType == WebSocketMessageType.Close)
 						{
 							await _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
-							Close?.Invoke(this, new CloseEventArgs(_ws.CloseStatus, _ws.CloseStatusDescription));
+							Close?.Invoke((WebSocketCloseStatus) _ws.CloseStatus, _ws.CloseStatusDescription);
 						}
 						else
 						{
@@ -118,14 +118,14 @@ namespace Lavalink.NET.Websocket
 
 					} while (!result.EndOfMessage);
 
-					if (stringResult.ToString().Length > 0) ThreadPool.QueueUserWorkItem((Object stateInfo) => InvokeMessageEvent(new MessageEventArgs(stringResult.ToString())));
+					if (stringResult.ToString().Length > 0) ThreadPool.QueueUserWorkItem((Object stateInfo) => InvokeMessageEvent(stringResult.ToString()));
 
 
 				}
 			}
 			catch (Exception)
 			{
-				Close?.Invoke(this, new CloseEventArgs(_ws.CloseStatus, _ws.CloseStatusDescription));
+				Close?.Invoke((WebSocketCloseStatus) _ws.CloseStatus, _ws.CloseStatusDescription);
 			}
 			finally
 			{
@@ -133,15 +133,15 @@ namespace Lavalink.NET.Websocket
 			}
 		}
 
-		private void InvokeMessageEvent(MessageEventArgs args)
+		private async void InvokeMessageEvent(string args)
 		{
 			try
 			{
-				Message.Invoke(this, args);
+				await Message?.Invoke(args);
 			}
 			catch (Exception e)
 			{
-				Error.Invoke(this, new ErrorEventArgs(e));
+				Error?.Invoke(e);
 			}
 		}
 	}

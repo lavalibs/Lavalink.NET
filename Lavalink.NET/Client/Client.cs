@@ -10,6 +10,7 @@ using Serilog;
 using Lavalink.NET.Websocket;
 using System.Threading;
 using Lavalink.NET.Player;
+using System.Net.WebSockets;
 
 namespace Lavalink.NET
 {
@@ -57,32 +58,32 @@ namespace Lavalink.NET
 		/// <summary>
 		/// Event that gets triggerd when a Message from Lavalink is received.
 		/// </summary>
-		public event MessageEvent Message;
+		public event Func<dynamic, Task> Message;
 
 		/// <summary>
 		/// Event that gets triggerd when this Client is ready to use.
 		/// </summary>
-		public event EventHandler Ready;
+		public event Func<Task> Ready;
 
 		/// <summary>
 		/// Event that gets triggerd when this Client Websocket Connection Disconnects.
 		/// </summary>
-		public event CloseEvent Disconnect;
+		public event Func<WebSocketCloseStatus, string, Task> Disconnect;
 
 		/// <summary>
 		/// Event that gets triggerd when this Client encounters an Error.
 		/// </summary>
-		public event ErrorEvent Error;
+		public event Func<Exception, Task> Error;
 
 		/// <summary>
 		/// Event what emits debug messages.
 		/// </summary>
-		public event DebugEvent Debug;
+		public event Func<string, Task> Debug;
 
 		/// <summary>
 		/// Event that gets triggerd when a Stats Message from Lavalink is received.
 		/// </summary>
-		public event StatsEvent Stats;
+		public event Func<Stats, Task> Stats;
 
 		/// <summary>
 		/// The Store of all Players from this Client.
@@ -261,55 +262,73 @@ namespace Lavalink.NET
 			return await Task.FromResult(true);
 		}
 
-		private void WebsocketMessage(object sender, MessageEventArgs e)
+		private Task WebsocketMessage(string message)
 		{
-			dynamic lavalinkEvent = JObject.Parse(e.Message);
+			dynamic lavalinkEvent = JObject.Parse(message);
 
-			Debug(this, new DebugEventArgs($"Received Websocket message from Lavalink with OP \"{lavalinkEvent.op}\""));
+			Debug($"Received Websocket message from Lavalink with OP \"{lavalinkEvent.op}\"");
 
-			Message?.Invoke(this, new MessageEventArgs(lavalinkEvent));
+			Message?.Invoke(lavalinkEvent);
 
 			if (lavalinkEvent.op == "event")
 			{
 				if (lavalinkEvent.guildId != null)
 				{
-					Debug(this, new DebugEventArgs($"Received Player Event with GuildID {lavalinkEvent.guildId}, emit event on player."));
+					Debug($"Received Player Event with GuildID {lavalinkEvent.guildId}, emit event on player.");
 					Player.Player player = Players.GetPlayer(Convert.ToUInt64(lavalinkEvent.guildId));
 					player.EmitEvent(lavalinkEvent);
 				} else {
-					Debug(this, new DebugEventArgs($"Received Lavalink event with \"event\" op but no guild id\n{lavalinkEvent}"));
+					Debug($"Received Lavalink event with \"event\" op but no guild id\n{lavalinkEvent}");
 				}
 			} else if (lavalinkEvent.op == "stats")
 			{
-				Stats?.Invoke(this, JsonConvert.DeserializeObject<StatsEventArgs>(e.Message));
+				Stats?.Invoke(JsonConvert.DeserializeObject<Stats>(message));
 			} else if (lavalinkEvent.op == "playerUpdate")
 			{
 				Player.Player player = Players.GetPlayer(Convert.ToUInt64(lavalinkEvent.guildId));
 				player.Position = Convert.ToUInt64(lavalinkEvent.state.position);
 			}
+
+			return Task.CompletedTask;
 		}
 
-		private void ErrorHandler(object sender, Types.ErrorEventArgs args)
+		private Task ErrorHandler(Exception error)
 		{
-			var message = $"Encountered following exeption while executing events {args.Error.Message}";
+			var message = $"Encountered following exeption while executing events {error.Message}";
 			EmitLogs(LogLevel.Error, message);
-			Error?.Invoke(this, args);
+			Error?.Invoke(error);
+
+			return Task.CompletedTask;
 		}
 
-		private void DebugHandler(object sender, DebugEventArgs args) 
-			=> EmitLogs(LogLevel.Debug, args.Message);
-
-		private void ReadyHandler(object sender, EventArgs args)
-			=> EmitLogs(LogLevel.Info, "LavalinkClient succesfully initialized");
-
-		private void ConnectionFailedHandler(object sender, ConnectionFailedArgs args)
+		private Task DebugHandler(string message)
 		{
-			var message = $"Connection refused with following message \"{args.Exception.Message}\".";
-			EmitLogs(LogLevel.Error, message);
-			Error?.Invoke(this, new Types.ErrorEventArgs(new Exception(message)));
+			EmitLogs(LogLevel.Debug, message);
+
+			return Task.CompletedTask;
 		}
 
-		private void DisconnectHandler(object sender, CloseEventArgs args) 
-			=> EmitLogs(LogLevel.Error, $"Websocket Connection Closed with following reason \"{args.Reason}\" and StatusCode \"{args.Status}\"");
+		private Task ReadyHandler()
+		{
+			EmitLogs(LogLevel.Info, "LavalinkClient succesfully initialized");
+
+			return Task.CompletedTask;
+		}
+
+		private Task ConnectionFailedHandler(Exception error)
+		{
+			var message = $"Connection refused with following message \"{error.Message}\".";
+			EmitLogs(LogLevel.Error, message);
+			Error?.Invoke(new Exception(message));
+
+			return Task.CompletedTask;
+		}
+
+		private Task DisconnectHandler(WebSocketCloseStatus closeStatus, string closeReason)
+		{
+			EmitLogs(LogLevel.Error, $"Websocket Connection Closed with following reason \"{closeReason}\" and StatusCode \"{closeStatus}\"");
+
+			return Task.CompletedTask;
+		}
 	}
 }

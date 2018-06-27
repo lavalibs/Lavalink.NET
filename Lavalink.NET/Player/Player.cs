@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Lavalink.NET.Types;
 using Newtonsoft.Json;
 
@@ -12,17 +13,17 @@ namespace Lavalink.NET.Player
 		/// <summary>
 		/// Event to call on Track Ending.
 		/// </summary>
-		public event TrackEndEvent End;
+		public event Func<TrackEndEvent, Task> End;
 
 		/// <summary>
 		/// Event to call on Track Exeption.
 		/// </summary>
-		public event TrackExceptionEvent Exeption;
+		public event Func<TrackExceptionEvent, Task> Exeption;
 
 		/// <summary>
 		/// Event to call on Track Stuck.
 		/// </summary>
-		public event TrackStuckEvent Stuck;
+		public event Func<TrackStuckEvent, Task> Stuck;
 
 		/// <summary>
 		/// The GuildID of this player.
@@ -226,30 +227,36 @@ namespace Lavalink.NET.Player
 			switch (lavalinkEvent.type)
 			{
 				case "TrackEndEvent":
-					End(this, JsonConvert.DeserializeObject<TrackEndEventArgs>(lavalinkEvent));
+					End(JsonConvert.DeserializeObject<TrackEndEvent>(lavalinkEvent));
 					break;
 				case "TrackExeptionEvent":
-					Exeption(this, JsonConvert.DeserializeObject<TrackExceptionEventArgs>(lavalinkEvent));
+					Exeption(JsonConvert.DeserializeObject<TrackExceptionEvent>(lavalinkEvent));
 					break;
 				case "TrackStuckEvent":
-					Stuck(this, JsonConvert.DeserializeObject<TrackStuckEventArgs>(lavalinkEvent));
+					Stuck(JsonConvert.DeserializeObject<TrackStuckEvent>(lavalinkEvent));
 					break;
 			}
 		}
 
-		private void PlayerEndEvent(object sender, TrackEndEventArgs e)
+		private Task PlayerEndEvent(TrackEndEvent e)
 		{
 			Status = Status.ENDED;
+
+			return Task.CompletedTask;
 		}
 
-		private void PlayerExeptionEvent(object sender, TrackExceptionEventArgs e)
+		private Task PlayerExeptionEvent(TrackExceptionEvent e)
 		{
 			Status = Status.ERRORED;
+
+			return Task.CompletedTask;
 		}
 
-		private void PlayerStuckEvent(object sender, TrackStuckEventArgs e)
+		private Task PlayerStuckEvent(TrackStuckEvent e)
 		{
 			Status = Status.STUCK;
+
+			return Task.CompletedTask;
 		}
     }
 }

@@ -21,7 +21,7 @@ namespace Testbot_Discord.Net.Lavalink
 		{
 			if (_client.GetGuild(packet.DiscordVoicePacket.GuildID) != null) {
 				if (packet.DiscordVoicePacket.ChannelID != null) {
-					SocketChannel channel = _client.GetChannel(packet.DiscordVoicePacket.ChannelID ?? default(ulong));
+					SocketChannel channel = _client.GetChannel((ulong) packet.DiscordVoicePacket.ChannelID);
 
 					if (!(channel is IAudioChannel voicechannel)) throw new Exception("Wrong channel type.");
 

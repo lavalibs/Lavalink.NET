@@ -14,7 +14,7 @@ namespace Testbot_Discord.Net
 {
     class Client
     {
-		public static global::Lavalink.NET.Client _lavalinkClient;
+		public static LavalinkClient _lavalinkClient;
 
 		private CommandService _commands;
 		private DiscordSocketClient _client;
@@ -28,7 +28,7 @@ namespace Testbot_Discord.Net
 
 		public async Task MainAsync()
 		{
-			var _config = new DiscordSocketConfig { MessageCacheSize = 100, WebSocketProvider = WebsocketStorage.Instance };
+			var _config = new DiscordSocketConfig { MessageCacheSize = 50 };
 			_client = new DiscordSocketClient(_config);
 			_commands = new CommandService();
 
@@ -108,17 +108,6 @@ namespace Testbot_Discord.Net
 			var result = await _commands.ExecuteAsync(context, argPos, _services);
 			if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
 				await context.Channel.SendMessageAsync(result.ErrorReason);
-		}
-	}
-	public abstract class WebsocketStorage
-	{
-		internal static SortedDictionary<int, Discord.Net.WebSockets.IWebSocketClient> storage = new SortedDictionary<int, Discord.Net.WebSockets.IWebSocketClient>();
-
-		internal static Discord.Net.WebSockets.IWebSocketClient Instance()
-		{
-			Discord.Net.WebSockets.IWebSocketClient webSocketClient = Discord.Net.WebSockets.DefaultWebSocketProvider.Instance();
-			storage.Add(storage.Count + 1, webSocketClient);
-			return webSocketClient;
 		}
 	}
 }
