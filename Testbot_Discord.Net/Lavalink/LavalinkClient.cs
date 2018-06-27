@@ -28,7 +28,9 @@ namespace Testbot_Discord.Net.Lavalink
 					await voicechannel.ConnectAsync(false, false, true);
 				} else
 				{
-					SocketChannel channel = _client.GetChannel(packet.DiscordVoicePacket.ChannelID ?? default(ulong));
+					ulong channelID = (ulong) Client._lavalinkClient.Players.GetPlayer(packet.DiscordVoicePacket.GuildID).ChannelID;
+
+					SocketChannel channel = _client.GetChannel(channelID);
 
 					if (!(channel is IAudioChannel voicechannel)) throw new Exception("Wrong channel type.");
 
