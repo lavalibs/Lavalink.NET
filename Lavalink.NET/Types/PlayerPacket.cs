@@ -54,13 +54,13 @@ namespace Lavalink.NET.Types
 		/// The ChannelID of the update as ulong.
 		/// </summary>
 		[JsonIgnore]
-		public ulong ChannelID { get; set; }
+		public ulong? ChannelID { get; set; }
 
 		/// <summary>
 		/// The ChannelID of the update as String.
 		/// </summary>
 		[JsonProperty("channel_id")]
-		public string ChannelIDString => ChannelID.ToString();
+		public string ChannelIDString => ChannelID?.ToString();
 
 		/// <summary>
 		/// The User ID of the update as ulong.

@@ -54,7 +54,7 @@ namespace Testbot_Discord.Net
 		private async Task VoiceStateUpdate(SocketUser user, SocketVoiceState before, SocketVoiceState after)
 		{
 			await _lavalinkClient.VoiceStateUpdateAsync(new VoiceStateUpdate {
-				ChannelID = after.VoiceChannel?.Id ?? before.VoiceChannel.Id,
+				ChannelID = after.VoiceChannel?.Id,
 				GuildID = after.VoiceChannel?.Guild.Id ?? before.VoiceChannel.Guild.Id,
 				SessionID = after.VoiceSessionId,
 				UserID = user.Id,

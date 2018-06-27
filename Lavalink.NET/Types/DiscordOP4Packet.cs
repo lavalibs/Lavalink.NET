@@ -54,6 +54,7 @@ namespace Lavalink.NET.Types
 		/// </summary>
 		[JsonProperty("op")]
 		public int OPCode { get; set; } = 4;
+
 		/// <summary>
 		/// The DiscordVoicePacket to send to the Discord Websocket Gateway.
 		/// </summary>
