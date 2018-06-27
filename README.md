@@ -1,8 +1,8 @@
-Lavalink.NET
+# Lavalink.NET
 
 A Library to interact with Lavalink, working with Any Discord APi library for C#.
 
-How to use the Library 
+## How to use the Library 
 
 Extend the Client and implement your own SendAsync() method to either forward data to the Discord Websocket or handle the externally connection to a VoiceChannel
 
@@ -10,7 +10,7 @@ To Get a Player use `LavalinkClient#Players` GetPlayer method with the GuildID.
 
 To Connect a Player to a VoiceChannel use `Player#ConnectAsync` and to Disconnect use `Player#LeaveAsync` this will create the needed package for the Discord Websocket you can send or handle yoursels.
 
-Example implementation of Lavalink.Net.Client with Discord.Net
+### Example implementation of Lavalink.Net.Client with Discord.Net
 ```CSharp
 using System;
 using System.Threading.Tasks;
@@ -56,7 +56,8 @@ namespace Testbot_Discord.Net.Lavalink
 }
 ```
 
-Example implementation with DSharpPlus (notice that you need to have a Singleton for Websockets and Serialize the DiscordOP4Packet because there is no way to connect externally to VoiceChannels with it)
+### Example implementation with DSharpPlus 
+notice that you need to have a Singleton or Storage for Websockets and Serialize the DiscordOP4Packet because there is no way to connect externally to VoiceChannels with D#+.
 
 ```CSharp
 using System.Threading.Tasks;
