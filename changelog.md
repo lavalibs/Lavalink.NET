@@ -4,17 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 27.06.2018
-
-### Added
-- [[06645f0846](https://github.com/Dev-Yukine/Lavalink.NET/commit/06645f08468c0481d77e7eb23a1f4ee60558bc51)] Player#ChannelID (DevYukine)
+## [1.2.0] - 27.06.2018
 
 ### Changed
-- [[06645f0846](https://github.com/Dev-Yukine/Lavalink.NET/commit/06645f08468c0481d77e7eb23a1f4ee60558bc51)] Player#GuildID setter is now private instead internal (DevYukine)
-- [[70512d346a](https://github.com/Dev-Yukine/Lavalink.NET/commit/70512d346aabc0a908a423dd55d4dabdf99d8885)] VoiceStateUpdate#ChannelID is now Nullable (DevYukine)
 
-- [[9b06dde1a0](https://github.com/Dev-Yukine/Lavalink.NET/commit/9b06dde1a0e8356fdbe31a778481b2287fabd942)] Updated D.Net Example code to newest Lavalink.Net
-
-### Removed
-
+- [[491336e647](https://github.com/Dev-Yukine/Lavalink.NET/commit/491336e6470de7a4ab71d27853b762c2e98d3eb1)] changed events to take func so the end user can make usage of Task in the Events. (DevYukine)
 
