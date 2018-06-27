@@ -127,14 +127,10 @@ namespace Lavalink.NET
 
 			if (options.UseLogging) Logger = new LoggerConfiguration().MinimumLevel.ControlledBy(new Serilog.Core.LoggingLevelSwitch( (Serilog.Events.LogEventLevel) _config.LogLevel)).WriteTo.Console().CreateLogger();
 
-
-			Debug += DebugHandler;
-			Ready += ReadyHandler;
-			Disconnect += DisconnectHandler;
 			Websocket.Message += WebsocketMessage;
-			Websocket.Ready += Ready;
-			Websocket.Debug += Debug;
-			Websocket.Close += Disconnect;
+			Websocket.Ready += ReadyHandler;
+			Websocket.Debug += DebugHandler;
+			Websocket.Close += DisconnectHandler;
 			Websocket.ConnectionFailed += ConnectionFailedHandler;
 		}
 
@@ -304,6 +300,7 @@ namespace Lavalink.NET
 		private Task DebugHandler(string message)
 		{
 			EmitLogs(LogLevel.Debug, message);
+			Debug?.Invoke(message);
 
 			return Task.CompletedTask;
 		}
@@ -311,6 +308,7 @@ namespace Lavalink.NET
 		private Task ReadyHandler()
 		{
 			EmitLogs(LogLevel.Info, "LavalinkClient succesfully initialized");
+			Ready?.Invoke();
 
 			return Task.CompletedTask;
 		}
@@ -326,7 +324,9 @@ namespace Lavalink.NET
 
 		private Task DisconnectHandler(WebSocketCloseStatus closeStatus, string closeReason)
 		{
-			EmitLogs(LogLevel.Error, $"Websocket Connection Closed with following reason \"{closeReason}\" and StatusCode \"{closeStatus}\"");
+			var message = $"Websocket Connection Closed with following reason \"{closeReason}\" and StatusCode \"{closeStatus}\"";
+			EmitLogs(LogLevel.Error, message);
+			Disconnect?.Invoke(closeStatus, closeReason);
 
 			return Task.CompletedTask;
 		}
