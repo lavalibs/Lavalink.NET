@@ -6,7 +6,11 @@ How to use the Library
 
 Extend the Client and implement your own SendAsync() method to either forward data to the Discord Websocket or handle the externally connection to a VoiceChannel
 
-Example implementation with Discord.Net
+To Get a Player use `LavalinkClient#Players` GetPlayer method with the GuildID.
+
+To Connect a Player to a VoiceChannel use `Player#ConnectAsync` and to Disconnect use `Player#LeaveAsync` this will create the needed package for the Discord Websocket you can send or handle yoursels.
+
+Example implementation of Lavalink.Net.Client with Discord.Net
 ```CSharp
 using System;
 using System.Threading.Tasks;
@@ -15,9 +19,9 @@ using Discord.WebSocket;
 using Lavalink.NET;
 using Lavalink.NET.Types;
 
-namespace Bot.Music
+namespace Testbot_Discord.Net.Lavalink
 {
-	class LavalinkClient : Lavalink.NET.Client
+	class LavalinkClient : global::Lavalink.NET.Client
 	{
 		private DiscordSocketClient _client;
 
@@ -38,7 +42,9 @@ namespace Bot.Music
 					await voicechannel.ConnectAsync(false, false, true);
 				} else
 				{
-					SocketChannel channel = _client.GetChannel(packet.DiscordVoicePacket.ChannelID ?? default(ulong));
+					ulong channelID = (ulong) Client._lavalinkClient.Players.GetPlayer(packet.DiscordVoicePacket.GuildID).ChannelID;
+
+					SocketChannel channel = _client.GetChannel(channelID);
 
 					if (!(channel is IAudioChannel voicechannel)) throw new Exception("Wrong channel type.");
 
