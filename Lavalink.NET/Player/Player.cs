@@ -27,7 +27,7 @@ namespace Lavalink.NET.Player
 		/// <summary>
 		/// The GuildID of this player.
 		/// </summary>
-		public ulong GuildID { get; internal set; }
+		public ulong GuildID { get; private set; }
 
 		/// <summary>
 		/// The current Status od this player.
@@ -38,6 +38,11 @@ namespace Lavalink.NET.Player
 		/// Boolean representing if this Player is connected to an Channel.
 		/// </summary>
 		public bool Connected { get; private set; } = false;
+
+		/// <summary>
+		/// The Channel ID which this Player is currently connected to, if this player isn't connected this is null.
+		/// </summary>
+		public ulong? ChannelID { get; private set; } = null;
 
 		/// <summary>
 		/// The position of the Player from the current playing song, this is -1 when there is no Song playing.
@@ -88,6 +93,8 @@ namespace Lavalink.NET.Player
 		{
 			await _client.SendAsync(new DiscordOP4Packet(GuildID, channelID, mute, deaf));
 
+			ChannelID = channelID;
+
 			Connected = true;
 		}
 
@@ -98,6 +105,8 @@ namespace Lavalink.NET.Player
 		public async Task LeaveAsync()
 		{
 			await _client.SendAsync(new DiscordOP4Packet(GuildID, null, false, false));
+
+			ChannelID = null;
 
 			Connected = false;
 		}
