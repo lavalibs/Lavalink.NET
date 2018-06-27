@@ -8,7 +8,7 @@ Extend the Client and implement your own SendAsync() method to either forward da
 
 To Get a Player use `LavalinkClient#Players` GetPlayer method with the GuildID.
 
-To Connect a Player to a VoiceChannel use `Player#ConnectAsync` and to Disconnect use `Player#LeaveAsync` this will create the needed package for the Discord Websocket you can send or handle yoursels.
+To Connect a Player to a VoiceChannel use `Player#ConnectAsync` and to Disconnect use `Player#LeaveAsync` this will create the needed package for the Discord Websocket and forward to `Client#SendAsync`.
 
 ### Example implementation of Lavalink.Net.Client with Discord.Net
 ```CSharp
