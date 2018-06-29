@@ -6,4 +6,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.2.2] - 27.06.2018
 
-
+# Added
+- [[6c86021b24](https://github.com/Dev-Yukine/Lavalink.NET/commit/95a43f20614213312a1058c83ae1d78820c47920)] Adds ShardCount to ClientOptions and default to 1.
