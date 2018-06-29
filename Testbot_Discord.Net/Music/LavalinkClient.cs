@@ -5,9 +5,9 @@ using Discord.WebSocket;
 using Lavalink.NET;
 using Lavalink.NET.Types;
 
-namespace Testbot_Discord.Net.Lavalink
+namespace Testbot_Discord.Net.Music
 {
-	class LavalinkClient : global::Lavalink.NET.Client
+	class LavalinkClient : Lavalink.NET.Client
 	{
 		private DiscordSocketClient _client;
 
@@ -28,7 +28,7 @@ namespace Testbot_Discord.Net.Lavalink
 					await voicechannel.ConnectAsync(false, false, true);
 				} else
 				{
-					ulong channelID = (ulong) Client._lavalinkClient.Players.GetPlayer(packet.DiscordVoicePacket.GuildID).ChannelID;
+					ulong channelID = (ulong) Client.Lavalink.Players.GetPlayer(packet.DiscordVoicePacket.GuildID).ChannelID;
 
 					SocketChannel channel = _client.GetChannel(channelID);
 

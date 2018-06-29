@@ -40,6 +40,11 @@ namespace Lavalink.NET
 		public ulong UserID { internal get; set; }
 
 		/// <summary>
+		/// The ShardCount of your Bot.
+		/// </summary>
+		public int ShardCount { internal get; set; } = 1;
+
+		/// <summary>
 		/// determine if the build in Logging module should be used.
 		/// </summary>
 		public bool UseLogging { internal get; set; } = false;
@@ -122,7 +127,7 @@ namespace Lavalink.NET
 		public Client(ClientOptions options)
 		{
 			_config = options;
-			Websocket = new Websocket.Websocket(new WebsocketOptions(_config.HostWS, _config.Password, _config.UserID.ToString()));
+			Websocket = new Websocket.Websocket(new WebsocketOptions(_config.HostWS, _config.Password, _config.UserID, _config.ShardCount));
 			Players = new PlayerStore(this);
 
 			if (options.UseLogging) Logger = new LoggerConfiguration().MinimumLevel.ControlledBy(new Serilog.Core.LoggingLevelSwitch( (Serilog.Events.LogEventLevel) _config.LogLevel)).WriteTo.Console().CreateLogger();

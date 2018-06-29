@@ -3,7 +3,6 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Lavalink.NET.Types;
 
 namespace Lavalink.NET.Websocket
 {
@@ -12,12 +11,14 @@ namespace Lavalink.NET.Websocket
 		internal string Host { get; set; }
 		internal string Password { get; set; }
 		internal string UserID { get; set; }
+		internal string ShardCount { get; set; }
 
-		internal WebsocketOptions(string host, string password, string userID)
+		internal WebsocketOptions(string host, string password, ulong userID, int shardCount)
 		{
 			Host = host ?? throw new ArgumentNullException(nameof(host));
 			Password = password ?? throw new ArgumentNullException(nameof(password));
-			UserID = userID ?? throw new ArgumentNullException(nameof(userID));
+			UserID = userID.ToString();
+			ShardCount = shardCount.ToString();
 		}
 	}
 
@@ -43,7 +44,7 @@ namespace Lavalink.NET.Websocket
 			_ws = new ClientWebSocket();
 			_ws.Options.KeepAliveInterval = TimeSpan.FromSeconds(20);
 			_ws.Options.SetRequestHeader("Authorization", options.Password);
-			_ws.Options.SetRequestHeader("Num-Shards", "1");
+			_ws.Options.SetRequestHeader("Num-Shards", options.ShardCount);
 			_ws.Options.SetRequestHeader("User-Id", options.UserID);
 			_uri = new Uri(options.Host);
 			_cancellationToken = _cancellationTokenSource.Token;

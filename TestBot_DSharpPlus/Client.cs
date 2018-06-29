@@ -7,7 +7,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Net.WebSocket;
 using Lavalink.NET;
 using Lavalink.NET.Types;
-using TestBot_DSharpPlus.Lavalink;
+using TestBot_DSharpPlus.Music;
 
 namespace TestBot_DSharpPlus
 {
@@ -50,7 +50,7 @@ namespace TestBot_DSharpPlus
 				HostWS = "ws://localhost:8060",
 				Password = "youshallnotpass",
 				UseLogging = true,
-				LogLevel = global::Lavalink.NET.Types.LogLevel.Debug },
+				LogLevel = Lavalink.NET.Types.LogLevel.Debug },
 				_client);
 			_client.VoiceStateUpdated += async e =>
 			{

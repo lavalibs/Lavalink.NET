@@ -18,43 +18,43 @@ namespace Testbot_Discord.Net.Commands
 		[Command("join")]
 		public async Task Join()
 		{
-			Player player = Client._lavalinkClient.Players.GetPlayer(Context.Guild.Id);
+			Player player = Client.Lavalink.Players.GetPlayer(Context.Guild.Id);
 			await player.JoinAsync(Context.Guild.GetUser(Context.User.Id).VoiceChannel.Id);
 		}
 
 		[Command("leave")]
 		public async Task Leave()
 		{
-			Player player = Client._lavalinkClient.Players.GetPlayer(Context.Guild.Id);
+			Player player = Client.Lavalink.Players.GetPlayer(Context.Guild.Id);
 			await player.LeaveAsync();
 		}
 
 		[Command("play")]
 		public async Task Play([Remainder] string query)
 		{
-			Player player = Client._lavalinkClient.Players.GetPlayer(Context.Guild.Id);
-			List<Track> tracks = await Client._lavalinkClient.LoadTracksAsync(query);
+			Player player = Client.Lavalink.Players.GetPlayer(Context.Guild.Id);
+			List<Track> tracks = await Client.Lavalink.LoadTracksAsync(query);
 			await player.PlayAsync(tracks[0]);
 		}
 
 		[Command("pause")]
 		public async Task Pause()
 		{
-			Player player = Client._lavalinkClient.Players.GetPlayer(Context.Guild.Id);
+			Player player = Client.Lavalink.Players.GetPlayer(Context.Guild.Id);
 			await player.PauseAsync();
 		}
 
 		[Command("resume")]
 		public async Task Resume()
 		{
-			Player player = Client._lavalinkClient.Players.GetPlayer(Context.Guild.Id);
+			Player player = Client.Lavalink.Players.GetPlayer(Context.Guild.Id);
 			await player.PauseAsync(false);
 		}
 
 		[Command("joinchannel")]
 		public async Task JoinSpecificChannel(SocketChannel channel)
 		{
-			Player player = Client._lavalinkClient.Players.GetPlayer(Context.Guild.Id);
+			Player player = Client.Lavalink.Players.GetPlayer(Context.Guild.Id);
 			await player.JoinAsync(channel.Id);
 		}
 	}

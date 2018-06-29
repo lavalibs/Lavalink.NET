@@ -19,7 +19,7 @@ using Discord.WebSocket;
 using Lavalink.NET;
 using Lavalink.NET.Types;
 
-namespace Testbot_Discord.Net.Lavalink
+namespace Testbot_Discord.Net.Music
 {
 	class LavalinkClient : global::Lavalink.NET.Client
 	{

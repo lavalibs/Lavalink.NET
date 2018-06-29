@@ -8,13 +8,13 @@ using Discord.WebSocket;
 using Lavalink.NET;
 using Lavalink.NET.Types;
 using Microsoft.Extensions.DependencyInjection;
-using Testbot_Discord.Net.Lavalink;
+using Testbot_Discord.Net.Music;
 
 namespace Testbot_Discord.Net
 {
     class Client
     {
-		public static LavalinkClient _lavalinkClient;
+		public static LavalinkClient Lavalink;
 
 		private CommandService _commands;
 		private DiscordSocketClient _client;
@@ -53,7 +53,7 @@ namespace Testbot_Discord.Net
 
 		private async Task VoiceStateUpdate(SocketUser user, SocketVoiceState before, SocketVoiceState after)
 		{
-			await _lavalinkClient.VoiceStateUpdateAsync(new VoiceStateUpdate {
+			await Lavalink.VoiceStateUpdateAsync(new VoiceStateUpdate {
 				ChannelID = after.VoiceChannel?.Id,
 				GuildID = after.VoiceChannel?.Guild.Id ?? before.VoiceChannel.Guild.Id,
 				SessionID = after.VoiceSessionId,
@@ -68,7 +68,7 @@ namespace Testbot_Discord.Net
 
 		private async Task VoiceServerUpdate(SocketVoiceServer voiceServer)
 		{
-			await _lavalinkClient.VoiceServerUpdateAsync(new VoiceServerUpdate {
+			await Lavalink.VoiceServerUpdateAsync(new VoiceServerUpdate {
 				Endpoint = voiceServer.Endpoint,
 				GuildID = voiceServer.Guild.Id,
 				Token = voiceServer.Token
@@ -77,7 +77,7 @@ namespace Testbot_Discord.Net
 
 		private Task InitLavalink()
 		{
-			_lavalinkClient = new LavalinkClient(new ClientOptions
+			Lavalink = new LavalinkClient(new ClientOptions
 			{
 				UserID = _client.CurrentUser.Id,
 				HostRest = "http://localhost:2333",
@@ -87,7 +87,7 @@ namespace Testbot_Discord.Net
 				LogLevel = LogLevel.Debug
 			}, _client);
 
-			_lavalinkClient.Start();
+			Lavalink.Start();
 
 			return Task.CompletedTask;
 		}
