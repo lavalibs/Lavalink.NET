@@ -2,7 +2,7 @@
 
 A Library to interact with Lavalink, working with Any Discord APi library for C#.
 
-# How to get the Library
+## How to get the Library
 
 This Library is avaible on Nuget. [Click Here](https://www.nuget.org/packages/Lavalink.NET)
 
