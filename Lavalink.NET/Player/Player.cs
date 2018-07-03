@@ -16,9 +16,9 @@ namespace Lavalink.NET.Player
 		public event Func<TrackEndEvent, Task> End;
 
 		/// <summary>
-		/// Event to call on Track Exeption.
+		/// Event to call on Track Exception.
 		/// </summary>
-		public event Func<TrackExceptionEvent, Task> Exeption;
+		public event Func<TrackExceptionEvent, Task> Exception;
 
 		/// <summary>
 		/// Event to call on Track Stuck.
@@ -31,7 +31,7 @@ namespace Lavalink.NET.Player
 		public ulong GuildID { get; private set; }
 
 		/// <summary>
-		/// The current Status od this player.
+		/// The current Status of this player.
 		/// </summary>
 		public Status Status { get; private set; } = Status.INSTANTIATED;
 
@@ -79,7 +79,7 @@ namespace Lavalink.NET.Player
 			GuildID = guildID;
 
 			End += PlayerEndEvent;
-			Exeption += PlayerExeptionEvent;
+			Exception += PlayerExeptionEvent;
 			Stuck += PlayerStuckEvent;
 		}
 
@@ -230,7 +230,7 @@ namespace Lavalink.NET.Player
 					End(JsonConvert.DeserializeObject<TrackEndEvent>(lavalinkEvent));
 					break;
 				case "TrackExeptionEvent":
-					Exeption(JsonConvert.DeserializeObject<TrackExceptionEvent>(lavalinkEvent));
+					Exception(JsonConvert.DeserializeObject<TrackExceptionEvent>(lavalinkEvent));
 					break;
 				case "TrackStuckEvent":
 					Stuck(JsonConvert.DeserializeObject<TrackStuckEvent>(lavalinkEvent));

@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.2.2] - 27.06.2018
+## [1.2.3] - 03.07.2018
 
-# Added
-- [[6c86021b24](https://github.com/Dev-Yukine/Lavalink.NET/commit/95a43f20614213312a1058c83ae1d78820c47920)] Adds ShardCount to ClientOptions and default to 1.
+# Changed
+- 
