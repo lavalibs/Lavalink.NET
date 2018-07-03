@@ -7,4 +7,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.2.3] - 03.07.2018
 
 # Changed
-- 
+- [[ad1ee9ccf51a](https://github.com/Dev-Yukine/Lavalink.NET/commit/ad1ee9ccf51a2aae5d3d9e0d4c9a56b10c25a91d)] Fixed Player#Exception event typo (Exeption => Exception)
