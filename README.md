@@ -2,6 +2,10 @@
 
 A Library to interact with Lavalink, working with Any Discord APi library for C#.
 
+# How to get the Library
+
+This Library is avaible on Nuget. [Click Here](https://www.nuget.org/packages/Lavalink.NET)
+
 ## How to use the Library 
 
 Extend the Client and implement your own SendAsync() method to either forward data to the Discord Websocket or handle the externally connection to a VoiceChannel
