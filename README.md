@@ -14,7 +14,7 @@ To Get a Player use `LavalinkClient#Players` GetPlayer method with the GuildID.
 
 To Connect a Player to a VoiceChannel use `Player#ConnectAsync` and to Disconnect use `Player#LeaveAsync`, this will create the needed package for the Discord Websocket and forward to `Client#SendAsync`. 
 
-### Example implementation of Lavalink.Net.Client with [Discord.Net](https://github.com/RogueException/Discord.Net)
+### Example implementation [Discord.Net](https://github.com/RogueException/Discord.Net)
 ```CSharp
 using System;
 using System.Threading.Tasks;
