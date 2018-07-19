@@ -2,8 +2,11 @@
 
 A Library to interact with Lavalink, working with Any Discord APi library for C#.
 
-## Installing
+## Pre-installing 
+1. Download [Java](https://java.com/en/download) and [follow Lavalink.jar installation](https://github.com/Frederikam/Lavalink#server-configuration) in order to use this library
+2. Run downloaded Lavalink.jar with following command : `java -jar Lavalink.jar`
 
+## Installing
 You can download Lavalink.Net Releases from Nuget [here](https://www.nuget.org/packages/Lavalink.NET).
 
 ## Getting Started
