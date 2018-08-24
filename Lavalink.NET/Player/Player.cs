@@ -174,6 +174,19 @@ namespace Lavalink.NET.Player
 				Status = Status.PLAYING;
 			}
 		}
+	    
+	    // <summary>
+	    /// Method to stop the current track from the player
+	    /// <returns> Task resolving with void. </returns>
+	    public async Task StopAsync()
+	    {
+		    await _client.Websocket.SendMessageAsync(JsonConvert.SerializeObject(new StopPacket {
+			    OPCode = "stop",
+			    Stop = true,
+			    GuildID = GuildID.ToString()
+		    }));
+		    Status = Status.STOPPED;
+	    }
 
 		/// <summary>
 		/// Method to Seek to a specified position.

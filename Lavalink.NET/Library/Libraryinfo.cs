@@ -9,6 +9,6 @@ namespace Lavalink.NET.Library
 		/// <summary>
 		/// The Version of this Library
 		/// </summary>
-		public static string Version = "1.2.3";
+		public static string Version = "1.2.4";
     }
 }
