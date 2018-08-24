@@ -118,7 +118,6 @@ namespace Lavalink.NET.Websocket
 						}
 
 					} while (!result.EndOfMessage);
-
 					if (stringResult.ToString().Length > 0) ThreadPool.QueueUserWorkItem((Object stateInfo) => InvokeMessageEvent(stringResult.ToString()));
 
 

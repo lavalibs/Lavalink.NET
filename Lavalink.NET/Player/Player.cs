@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Lavalink.NET.Types;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Lavalink.NET.Player
 {
@@ -9,7 +10,7 @@ namespace Lavalink.NET.Player
 	/// The Player class to use.
 	/// </summary>
 	public class Player
-    {
+	{
 		/// <summary>
 		/// Event to call on Track Ending.
 		/// </summary>
@@ -235,18 +236,18 @@ namespace Lavalink.NET.Player
 			}));
 		}
 
-		internal void EmitEvent(dynamic lavalinkEvent)
+		internal void EmitEvent(JObject lavalinkEvent)
 		{
-			switch (lavalinkEvent.type)
+			switch (lavalinkEvent["type"].ToString())
 			{
 				case "TrackEndEvent":
-					End(JsonConvert.DeserializeObject<TrackEndEvent>(lavalinkEvent));
+					End(JsonConvert.DeserializeObject<TrackEndEvent>(lavalinkEvent.ToString()));
 					break;
 				case "TrackExeptionEvent":
-					Exception(JsonConvert.DeserializeObject<TrackExceptionEvent>(lavalinkEvent));
+					Exception(JsonConvert.DeserializeObject<TrackExceptionEvent>(lavalinkEvent.ToString()));
 					break;
 				case "TrackStuckEvent":
-					Stuck(JsonConvert.DeserializeObject<TrackStuckEvent>(lavalinkEvent));
+					Stuck(JsonConvert.DeserializeObject<TrackStuckEvent>(lavalinkEvent.ToString()));
 					break;
 			}
 		}

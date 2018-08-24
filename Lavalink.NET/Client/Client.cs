@@ -63,7 +63,7 @@ namespace Lavalink.NET
 		/// <summary>
 		/// Event that gets triggerd when a Message from Lavalink is received.
 		/// </summary>
-		public event Func<dynamic, Task> Message;
+		public event Func<JObject, Task> Message;
 
 		/// <summary>
 		/// Event that gets triggerd when this Client is ready to use.
@@ -265,29 +265,28 @@ namespace Lavalink.NET
 
 		private Task WebsocketMessage(string message)
 		{
-			dynamic lavalinkEvent = JObject.Parse(message);
-
-			Debug($"Received Websocket message from Lavalink with OP \"{lavalinkEvent.op}\"");
+			var lavalinkEvent = JObject.Parse(message);
 
 			Message?.Invoke(lavalinkEvent);
 
-			if (lavalinkEvent.op == "event")
+			var op = lavalinkEvent["op"].ToString();
+			if (op.Equals("event"))
 			{
-				if (lavalinkEvent.guildId != null)
+				var guildId = lavalinkEvent["guildId"].ToString();
+				if (!string.IsNullOrEmpty(guildId))
 				{
-					Debug($"Received Player Event with GuildID {lavalinkEvent.guildId}, emit event on player.");
-					Player.Player player = Players.GetPlayer(Convert.ToUInt64(lavalinkEvent.guildId));
+					Player.Player player = Players.GetPlayer(Convert.ToUInt64(guildId));
+					
 					player.EmitEvent(lavalinkEvent);
 				} else {
-					Debug($"Received Lavalink event with \"event\" op but no guild id\n{lavalinkEvent}");
 				}
-			} else if (lavalinkEvent.op == "stats")
+			} else if (op.Equals("stats"))
 			{
 				Stats?.Invoke(JsonConvert.DeserializeObject<Stats>(message));
-			} else if (lavalinkEvent.op == "playerUpdate")
+			} else if (op.Equals("playerUpdate"))
 			{
-				Player.Player player = Players.GetPlayer(Convert.ToUInt64(lavalinkEvent.guildId));
-				player.Position = Convert.ToUInt64(lavalinkEvent.state.position);
+				Player.Player player = Players.GetPlayer(Convert.ToUInt64(op));
+				player.Position = Convert.ToInt64(lavalinkEvent["state"]["position"].ToString());
 			}
 
 			return Task.CompletedTask;
