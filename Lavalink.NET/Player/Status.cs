@@ -20,6 +20,11 @@ namespace Lavalink.NET.Player
 		/// Player is currently paused.
 		/// </summary>
 		PAUSED,
+		
+		/// <summary>
+		/// Player is currently stopped.
+		/// </summary>
+		STOPPED,
 
 		/// <summary>
 		/// Player has ended playing a Song.

@@ -182,6 +182,15 @@ namespace Lavalink.NET.Types
 		[JsonProperty("pause")]
 		public bool Pause { get; set; }
 	}
+	
+	public class StopPacket : PlayerPacket
+	{
+		/// <summary>
+		/// Boolean indicating if the Player should be paused or not.
+		/// </summary>
+		[JsonProperty("stop")]
+		public bool Stop { get; set; }
+	}
 
 	/// <summary>
 	/// The SeekPacket for the Player.
