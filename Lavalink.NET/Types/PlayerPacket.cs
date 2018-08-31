@@ -34,7 +34,7 @@ namespace Lavalink.NET.Types
 	}
 
 	/// <summary>
-	/// THe Update packet for VoiceStateUpdates.
+	/// The Update packet for VoiceStateUpdates.
 	/// </summary>
 	public class VoiceStateUpdate
 	{
