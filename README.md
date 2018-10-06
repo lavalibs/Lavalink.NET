@@ -1,5 +1,7 @@
 # Lavalink.NET
 
+[![lavalibs support server](https://discordapp.com/api/guilds/494948120103485440/embed.png)](https://discord.gg/jXSKeW5)
+
 A Library to interact with Lavalink, working with Any Discord APi library for C#.
 
 ## Pre-installing 
