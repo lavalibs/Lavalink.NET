@@ -44,14 +44,7 @@ namespace Lavalink.NET
 		/// <param name="nodeOptions">The Node Options to create this Cluster with</param>
 		protected LavalinkCluster(IEnumerable<LavalinkNodeOptions> nodeOptions)
 		{
-			foreach (var options in nodeOptions)
-			{
-				var node = new LavalinkNode(this, options);
-				node.Event += Event;
-				node.Stats += Stats;
-				node.Logs += Logs;
-				LavalinkNodes.Add(node);
-			}
+			foreach (var options in nodeOptions) LavalinkNodes.Add(new LavalinkNode(this, options));
 			HttpClient = new HttpClient();
 		}
 
@@ -143,6 +136,24 @@ namespace Lavalink.NET
 		/// <returns>Task</returns>
 		public Task VoiceServerUpdateAsync(VoiceServerUpdatePayload server)
 			=> GetNode(long.Parse(server.GuildID)).VoiceServerUpdateAsync(server);
+
+		internal void EmitEvent(EventType type, object data)
+		{
+			switch (type)
+			{
+				case EventType.EVENT:
+					Event?.Invoke(this, (MessageEventArgs) data);
+					break;
+				case EventType.STATS:
+					Stats?.Invoke(this, (StatsEventArgs) data);
+					break;
+				case EventType.LOGS:
+					Logs?.Invoke(this, (LogEventArgs) data);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(type), type, null);
+			}
+		}
 		
 		/// <summary>
 		/// Abstract SendAsync method that should forward VoiceStateDispatches to the Discord API

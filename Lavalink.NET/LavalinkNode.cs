@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 using Lavalink.NET.Types;
 using Newtonsoft.Json;
@@ -51,7 +52,7 @@ namespace Lavalink.NET
 		public LavalinkStats LavalinkStats { get; private set; }
 		
 		/// <summary>
-		/// 
+		/// The Function which forwards UpdateVoiceStateDispatch to the Discord WebSocket API
 		/// </summary>
 		public Func<long, UpdateVoiceStateDispatch, Task> DiscordSendFunction { get; }
 
@@ -77,6 +78,12 @@ namespace Lavalink.NET
 		/// the WebSocketClient of this Node
 		/// </summary>
 		private WebSocketClient WebSocketClient { get; set; }
+
+		/// <summary>
+		/// If this Node is Connected
+		/// </summary>
+		private bool Connected
+			=> WebSocketClient?.Status == WebSocketState.Open;
 
 		/// <summary>
 		/// The Options of this Node
@@ -125,6 +132,10 @@ namespace Lavalink.NET
 		public LavalinkNode(LavalinkCluster cluster, LavalinkNodeOptions options)
 		{
 			Cluster = cluster;
+			Event += (sender, data) => Cluster.EmitEvent(EventType.EVENT, data);
+			Stats += (sender, data) => Cluster.EmitEvent(EventType.STATS, data);
+			Logs += (sender, data) => Cluster.EmitEvent(EventType.LOGS, data);
+			
 			Players = new PlayerStore(this);
 			Options = options;
 			DiscordSendFunction = cluster.SendAsync;
