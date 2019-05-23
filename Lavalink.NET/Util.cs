@@ -30,7 +30,7 @@ namespace Lavalink.NET
 		/// <returns>int</returns>
 		public static int CompareCPU(LavalinkNode a, LavalinkNode b)
 		{
-			if (a.LavalinkStats == null || b.LavalinkStats == null) return -1;
+			if (a.LavalinkStats == null || b.LavalinkStats == null || !b.Connected) return -1;
 			return (int) (a.LavalinkStats.CPU.SystemLoad / a.LavalinkStats.CPU.Cores - (b.LavalinkStats.CPU.SystemLoad - b.LavalinkStats.CPU.Cores));
 		}
 	}

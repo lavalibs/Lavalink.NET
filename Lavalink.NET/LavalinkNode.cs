@@ -77,15 +77,15 @@ namespace Lavalink.NET
 			=> Cluster?.HttpClient ?? _http;
 		
 		/// <summary>
+		/// If this Node is Connected
+		/// </summary>
+		public bool Connected
+			=> WebSocketClient?.Status == WebSocketState.Open;
+		
+		/// <summary>
 		/// the WebSocketClient of this Node
 		/// </summary>
 		private WebSocketClient WebSocketClient { get; set; }
-
-		/// <summary>
-		/// If this Node is Connected
-		/// </summary>
-		private bool Connected
-			=> WebSocketClient?.Status == WebSocketState.Open;
 
 		/// <summary>
 		/// The Options of this Node
