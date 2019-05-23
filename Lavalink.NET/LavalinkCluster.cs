@@ -86,7 +86,7 @@ namespace Lavalink.NET
 		public List<LavalinkNode> Sort(long guildID)
 		{
 			var list = new List<LavalinkNode>(LavalinkNodes);
-			var enumerable = list.Where(node => Filter(node, guildID));
+			var enumerable = list.Where(node => node.Connected && Filter(node, guildID));
 			list = enumerable.ToList();
 			list.Sort(Util.CompareCPU);
 			return list;
