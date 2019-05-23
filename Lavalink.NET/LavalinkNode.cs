@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
@@ -105,6 +107,8 @@ namespace Lavalink.NET
 		/// </summary>
 		private int ReconnectDelay { get; set; }
 		
+		private ConcurrentQueue<Sendable> Queue { get; } = new ConcurrentQueue<Sendable>();
+		
 		/// <summary>
 		/// The HttpClient of this Node if no Cluster is used
 		/// </summary>
@@ -197,12 +201,21 @@ namespace Lavalink.NET
 		}
 
 		/// <summary>
-		/// Sends an Packet to the Lavalink Websocket
+		/// Sends an Packet to the Lavalink Websocket if Connected, otherwise Queue it up
 		/// </summary>
 		/// <param name="packet">The packet to send</param>
 		/// <returns>Task</returns>
 		public Task SendAsync(object packet)
-			=> WebSocketClient.SendAsync(JsonConvert.SerializeObject(packet));
+		{
+			if (Connected) return WebSocketClient.SendAsync(JsonConvert.SerializeObject(packet));
+			
+			var tcs = new TaskCompletionSource<bool>();
+			var sendable = new Sendable(packet);
+			sendable.Success += (sender, args) => tcs.SetResult(true);
+			sendable.Error += (sender, e) => tcs.SetException(e);
+			Queue.Enqueue(sendable);
+			return tcs.Task;
+		}
 
 		/// <summary>
 		/// Loads Track(s) from Lavalink by query
@@ -275,6 +288,24 @@ namespace Lavalink.NET
 		}
 
 		/// <summary>
+		/// Sends a Sendable to the Lavalink WebSocket
+		/// </summary>
+		/// <param name="data">The data to send</param>
+		/// <returns>Task</returns>
+		private async Task _sendAsync(Sendable data)
+		{
+			try
+			{
+				await WebSocketClient.SendAsync(JsonConvert.SerializeObject(data.Packet));
+				data.Emit();
+			}
+			catch (Exception e)
+			{
+				data.Emit(e);
+			}
+		}
+
+		/// <summary>
 		/// Invokes a VoiceUpdate if needed
 		/// </summary>
 		/// <param name="guildID">The GuildID to try VoiceUpdate on.</param>
@@ -299,6 +330,8 @@ namespace Lavalink.NET
 			_log(LogLevel.DEBUG, "Websocket Connection Open");
 			try
 			{
+				await Task.WhenAll(Queue.Select(_sendAsync));
+				Queue.Clear();
 				await ConfigureResumeAsync();
 			}
 			catch (Exception e)
