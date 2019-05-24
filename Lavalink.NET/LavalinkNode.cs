@@ -107,6 +107,9 @@ namespace Lavalink.NET
 		/// </summary>
 		private int ReconnectDelay { get; set; }
 		
+		/// <summary>
+		/// Queue for request done while Node WebSocket isn't connected
+		/// </summary>
 		private ConcurrentQueue<Sendable> Queue { get; } = new ConcurrentQueue<Sendable>();
 		
 		/// <summary>
