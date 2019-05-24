@@ -227,7 +227,7 @@ namespace Lavalink.NET
 			var request = new HttpRequestMessage
 			{
 				Method = HttpMethod.Get,
-				RequestUri = new Uri($"{Options.HostRest}/loadtracks?identifier={query}")
+				RequestUri = new Uri($"{Options.HostRest}/loadtracks?identifier={Uri.EscapeDataString(query)}")
 			};
 			request.Headers.Add("Authorization", Options.Password);
 			request.Headers.Add("Accept", "application/json");
