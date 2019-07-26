@@ -12,11 +12,5 @@ namespace Lavalink.NET.Types
 		/// </summary>
 		[JsonProperty("type")]
 		public PlayerEventType EventType { get; set; }
-		
-		/// <summary>
-		/// The Track which ended playing
-		/// </summary>
-		[JsonProperty("track")]
-		public string Track { get; set; }
 	}
 }

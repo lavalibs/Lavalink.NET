@@ -29,7 +29,12 @@ namespace Lavalink.NET
 		/// <summary>
 		/// Event which fires on Lavalink TrackStuckEvent
 		/// </summary>
-		public event EventHandler<PlayerStuckEventPacket> Stuck; 
+		public event EventHandler<PlayerStuckEventPacket> Stuck;
+
+		/// <summary>
+		/// Event which fires on Lavalink WebSocketCloseEvent
+		/// </summary>
+		public event EventHandler<PlayerCloseEventPacket> WebSocketClose; 
 		
 		/// <summary>
 		/// The Lavalink Node of this Player
@@ -37,14 +42,19 @@ namespace Lavalink.NET
 		public LavalinkNode Node { get; set; }
 		
 		/// <summary>
-		/// The GuildID of this Playxer
+		/// The GuildID of this Player
 		/// </summary>
 		public long GuildID { get; }
-		
+
 		/// <summary>
 		/// The last known position of this Player
 		/// </summary>
-		public long Position { get; set; }
+		public long Position { get; set; } = -1;
+
+		/// <summary>
+		/// The Current Status of the Player
+		/// </summary>
+		public PlayerStatus Status { get; set; } = PlayerStatus.INSTANTIATED;
 
 		/// <summary>
 		/// The VoiceServer Packet of this Player
@@ -160,24 +170,30 @@ namespace Lavalink.NET
 		/// </summary>
 		/// <returns>Task</returns>
 		public Task PauseAsync()
-			=> Node.SendAsync(new PausePacket
+		{
+			Status = PlayerStatus.PAUSED;
+			return Node.SendAsync(new PausePacket
 			{
 				OPCode = "pause",
 				GuildID = GuildID.ToString(),
 				Pause = true
 			});
-		
+		}
+
 		/// <summary>
 		/// Resumes Playing on this Player
 		/// </summary>
 		/// <returns>Task</returns>
 		public Task ResumeAsync()
-			=> Node.SendAsync(new PausePacket
+		{
+			Status = PlayerStatus.PLAYING;
+			return Node.SendAsync(new PausePacket
 			{
 				OPCode = "pause",
 				GuildID = GuildID.ToString(),
 				Pause = false
 			});
+		}
 
 		/// <summary>
 		/// Seek to a position on this Player
@@ -206,7 +222,7 @@ namespace Lavalink.NET
 			});
 
 		/// <summary>
-		/// 
+		/// Destroys this Player
 		/// </summary>
 		/// <returns>Task</returns>
 		public Task DestroyAsync()
@@ -256,12 +272,19 @@ namespace Lavalink.NET
 			{
 				case PlayerEventType.TrackEndEvent:
 					End?.Invoke(this, JsonConvert.DeserializeObject<PlayerEndEventPacket>(json));
+					Status = PlayerStatus.ENDED;
 					break;
 				case PlayerEventType.TrackExceptionEvent:
 					Exception?.Invoke(this, JsonConvert.DeserializeObject<PlayerExceptionEventPacket>(json));
+					Status = PlayerStatus.ERRORED;
 					break;
 				case PlayerEventType.TrackStuckEvent:
 					Stuck?.Invoke(this, JsonConvert.DeserializeObject<PlayerStuckEventPacket>(json));
+					Status = PlayerStatus.STUCK;
+					break;
+				case PlayerEventType.WebSocketClosedEvent:
+					WebSocketClose?.Invoke(this, JsonConvert.DeserializeObject<PlayerCloseEventPacket>(json));
+					Status = PlayerStatus.ERRORED;
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(type), type, null);

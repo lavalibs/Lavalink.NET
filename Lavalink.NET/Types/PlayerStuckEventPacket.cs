@@ -5,7 +5,7 @@ namespace Lavalink.NET.Types
 	/// <summary>
 	/// The Player StuckEvent Packet.
 	/// </summary>
-	public class PlayerStuckEventPacket : PlayerEventPacket
+	public class PlayerStuckEventPacket : PlayerTrackEventPacket
 	{
 		/// <summary>
 		/// The position the song ended

@@ -5,7 +5,7 @@ namespace Lavalink.NET.Types
 	/// <summary>
 	/// The Player ExceptionEvent Packet.
 	/// </summary>
-	public class PlayerExceptionEventPacket : PlayerEventPacket
+	public class PlayerExceptionEventPacket : PlayerTrackEventPacket
 	{
 		/// <summary>
 		/// The Reason the Track errored

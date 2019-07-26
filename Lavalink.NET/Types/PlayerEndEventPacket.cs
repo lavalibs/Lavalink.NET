@@ -5,7 +5,7 @@ namespace Lavalink.NET.Types
 	/// <summary>
 	/// The Player EndEvent Packet.
 	/// </summary>
-	public class PlayerEndEventPacket : PlayerEventPacket
+	public class PlayerEndEventPacket : PlayerTrackEventPacket
 	{
 		/// <summary>
 		/// The Reason the Track ended

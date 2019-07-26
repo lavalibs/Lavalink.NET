@@ -18,6 +18,11 @@ namespace Lavalink.NET.Types
 		/// <summary>
 		/// Track Stuck, you might want to play a new Track at this point
 		/// </summary>
-		TrackStuckEvent
+		TrackStuckEvent,
+		
+		/// <summary>
+		/// Voice WebSocket Closed for this Player
+		/// </summary>
+		WebSocketClosedEvent
 	}
 }
