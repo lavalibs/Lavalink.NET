@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace Lavalink.NET.Types
 {
 	/// <summary>
-	/// The actuall info about the Track.
+	/// The actual info about the Track.
 	/// </summary>
 	public class TrackInfo
 	{
@@ -59,8 +59,8 @@ namespace Lavalink.NET.Types
 	/// <summary>
 	/// The Track with all the needed information from Lavalink.
 	/// </summary>
-    public class Track
-    {
+	public class Track
+	{
 		/// <summary>
 		/// The TrackString that lavalink sent/needs to play Songs.
 		/// </summary>
@@ -68,9 +68,9 @@ namespace Lavalink.NET.Types
 		public string TrackString { get; set; }
 
 		/// <summary>
-		/// The actuall info about this Track.
+		/// The actual info about this Track.
 		/// </summary>
 		[JsonProperty("info")]
 		public TrackInfo TrackInfo { get; set; }
-    }
+	}
 }

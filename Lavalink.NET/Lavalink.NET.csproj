@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <Authors>Yukine</Authors>
     <Product>Lavalink.NET</Product>
     <Company>Yukine</Company>
@@ -10,7 +10,7 @@
     <PackageLicenseUrl>https://github.com/Dev-Yukine/Lavalink.NET/blob/master/LICENSE</PackageLicenseUrl>
     <Copyright>MIT</Copyright>
     <PackageProjectUrl>https://github.com/Dev-Yukine/Lavalink.NET</PackageProjectUrl>
-    <PackageReleaseNotes>https://github.com/Dev-Yukine/Lavalink.NET/releases/tag/1.2.3</PackageReleaseNotes>
+    <PackageReleaseNotes>Complete Rewrite</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/Dev-Yukine/Lavalink.NET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Lavalink</PackageTags>
@@ -19,6 +19,7 @@
     <Version>1.2.3</Version>
     <FileVersion>1.0.0</FileVersion>
     <AssemblyVersion>1.0.0</AssemblyVersion>
+    <PackageVersion>2.0.0</PackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -26,9 +27,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="Serilog" Version="2.7.1" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="Spectacles.NET.Types" Version="0.4.9" />
+    <PackageReference Include="WS.NET" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
