@@ -235,12 +235,12 @@ namespace Lavalink.NET
 		/// <summary>
 		/// Moves this Player to another Lavalink Node
 		/// </summary>
-		/// <param name="node"></param>
-		/// <returns></returns>
+		/// <param name="node">The new Node of this Player</param>
+		/// <returns>Task</returns>
 		/// <exception cref="Exception"></exception>
 		public async Task MoveToAsync(LavalinkNode node)
 		{
-			if (node == Node) return;
+			if (node == Node) throw new Exception("can't move to the same node");
 			var voiceServer = VoiceServer;
 			var voiceState = VoiceState;
 			
