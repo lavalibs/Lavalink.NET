@@ -1,11 +1,11 @@
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace Lavalink.NET
 {
 	/// <summary>
 	/// The Player Store for a Lavalink Node	
 	/// </summary>
-	public class PlayerStore : Dictionary<long, Player>
+	public class PlayerStore : ConcurrentDictionary<long, Player>
 	{
 		/// <summary>
 		/// The LavalinkNode this PlayerStore is for

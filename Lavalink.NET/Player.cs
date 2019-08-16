@@ -222,15 +222,19 @@ namespace Lavalink.NET
 			});
 
 		/// <summary>
-		/// Destroys this Player
+		/// Destroys this Player and removes it from the Node
 		/// </summary>
 		/// <returns>Task</returns>
-		public Task DestroyAsync()
-			=> Node.SendAsync(new PlayerPacket
+		public async Task DestroyAsync()
+		{
+			await Node.SendAsync(new PlayerPacket
 			{
 				OPCode = "destroy",
 				GuildID = GuildID.ToString()
 			});
+			Status = PlayerStatus.ENDED;
+			Node.Players.TryRemove(GuildID, out _);
+		}
 
 		/// <summary>
 		/// Moves this Player to another Lavalink Node
@@ -247,6 +251,7 @@ namespace Lavalink.NET
 			if (voiceServer == null || voiceState == null) throw new Exception("no voice state/server data to move");
 
 			await DestroyAsync();
+			node.Players.TryAdd(GuildID, this);
 			await Task.WhenAll(node.VoiceServerUpdateAsync(voiceServer), node.VoiceStateUpdateAsync(voiceState));
 			Node = node;
 		}
