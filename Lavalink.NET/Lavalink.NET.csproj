@@ -10,7 +10,13 @@
     <PackageLicenseUrl>https://github.com/Dev-Yukine/Lavalink.NET/blob/master/LICENSE</PackageLicenseUrl>
     <Copyright>MIT</Copyright>
     <PackageProjectUrl>https://github.com/Dev-Yukine/Lavalink.NET</PackageProjectUrl>
-    <PackageReleaseNotes>Complete Rewrite to allow easier distribution</PackageReleaseNotes>
+    <PackageReleaseNotes>- Changed PlayerStore to extend ConcurrentDictionary instead Dictionary to make it Thread Safe
+
+
+- Player#DestroyAsync now removes it from the Node's PlayerStore to remove a possible memory leak, also set the Status to Ended
+
+
+- MoveToAsync now Adds the Player on the new Node to not Create another instance of the same Player on the new Node</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/Dev-Yukine/Lavalink.NET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Lavalink</PackageTags>
@@ -19,7 +25,7 @@
     <Version>1.2.3</Version>
     <FileVersion>1.0.0</FileVersion>
     <AssemblyVersion>1.0.0</AssemblyVersion>
-    <PackageVersion>2.0.0</PackageVersion>
+    <PackageVersion>2.0.1</PackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
