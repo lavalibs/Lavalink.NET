@@ -33,6 +33,16 @@ namespace Lavalink.NET
 		public int ShardCount { get; set; } = 1;
 		
 		/// <summary>
+		/// The resume key of another session, if any
+		/// </summary>
+		public string ResumeKey { get; set; }
+		
+		/// <summary>
+		/// The resume timeout this node should use, if any 
+		/// </summary>
+		public int? ResumeTimeout { get; set; }
+		
+		/// <summary>
 		/// Tags for this Lavalink Node (useful for region, id etc.)
 		/// </summary>
 		public IEnumerable<string> Tags { get; set; }

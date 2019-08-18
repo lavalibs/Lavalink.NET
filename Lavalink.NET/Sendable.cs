@@ -26,10 +26,8 @@ namespace Lavalink.NET
 		/// Creates a new instance of Sendable
 		/// </summary>
 		/// <param name="packet"></param>
-		public Sendable(object packet)
-		{
-			Packet = packet;
-		}
+		public Sendable(object packet) 
+			=> Packet = packet;
 
 		/// <summary>
 		/// Emits either Success or Error event

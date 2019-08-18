@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.WebSockets;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Lavalink.NET.Extensions;
 using Lavalink.NET.Types;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -52,11 +54,12 @@ namespace Lavalink.NET
 		/// Latest Stats of this Lavalink Node
 		/// </summary>
 		public LavalinkStats LavalinkStats { get; private set; }
-		
+
 		/// <summary>
 		/// The Function which forwards UpdateVoiceStateDispatch to the Discord WebSocket API
 		/// </summary>
-		public Func<long, UpdateVoiceStateDispatch, Task> DiscordSendFunction { get; }
+		public Func<long, UpdateVoiceStateDispatch, Task> DiscordSendFunction 
+			=> Cluster != null ? Cluster.SendAsync : _discordSendFunction;
 
 		/// <summary>
 		/// The Tags of this Node
@@ -83,6 +86,15 @@ namespace Lavalink.NET
 			=> WebSocketClient?.Status == WebSocketState.Open;
 		
 		/// <summary>
+		/// The ResumeKey of this Node, if any
+		/// </summary>
+		public string ResumeKey
+		{
+			get => Options.ResumeKey ?? _resumeKey;
+			set => _resumeKey = value;
+		}
+		
+		/// <summary>
 		/// the WebSocketClient of this Node
 		/// </summary>
 		private WebSocketClient WebSocketClient { get; set; }
@@ -96,11 +108,6 @@ namespace Lavalink.NET
 		/// The Cluster which instantiated this Node, if any 
 		/// </summary>
 		private LavalinkCluster Cluster { get; }
-		
-		/// <summary>
-		/// The ResumeKey of this Node, if any
-		/// </summary>
-		private string ResumeKey { get; set; }
 
 		/// <summary>
 		/// The Reconnect Delay of this Node, if any
@@ -118,16 +125,27 @@ namespace Lavalink.NET
 		private readonly HttpClient _http;
 
 		/// <summary>
+		/// The DiscordSendFunction of this Node if no Cluster is used
+		/// </summary>
+		private readonly Func<long, UpdateVoiceStateDispatch, Task> _discordSendFunction;
+
+		/// <summary>
+		/// The created Resume Key if not provided in <see cref="LavalinkNodeOptions"/>
+		/// </summary>
+		private string _resumeKey;
+
+		/// <summary>
 		/// Creates a new LavalinkNode instance without a Cluster
 		/// </summary>
 		/// <param name="options">The options of this Node</param>
 		/// <param name="discordSendFunction">The DiscordSendFunction for the OP4 Packets</param>
-		/// <param name="client"></param>
+		/// <param name="client">Optional, the HttpClient to use for Rest Requests</param>
 		public LavalinkNode(LavalinkNodeOptions options, Func<long, UpdateVoiceStateDispatch, Task> discordSendFunction, HttpClient client = null)
 		{
 			Options = options;
+			ResumeKey = options.ResumeKey;
 			Players = new PlayerStore(this);
-			DiscordSendFunction = discordSendFunction;
+			_discordSendFunction = discordSendFunction;
 			_http = client ?? new HttpClient();
 		}
 
@@ -145,7 +163,7 @@ namespace Lavalink.NET
 			
 			Players = new PlayerStore(this);
 			Options = options;
-			DiscordSendFunction = cluster.SendAsync;
+			ResumeKey = options.ResumeKey;
 		}
 
 		/// <summary>
@@ -204,14 +222,32 @@ namespace Lavalink.NET
 		}
 
 		/// <summary>
-		/// Sends an Packet to the Lavalink Websocket if Connected, otherwise Queue it up
+		/// Sends an Packet to the Lavalink Websocket if Connected, otherwise Queues it up
 		/// </summary>
 		/// <param name="packet">The packet to send</param>
 		/// <returns>Task</returns>
-		public Task SendAsync(object packet)
+		public async Task SendAsync(object packet)
 		{
-			if (Connected) return WebSocketClient.SendAsync(JsonConvert.SerializeObject(packet));
-			
+			if (Connected)
+				try
+				{
+					await WebSocketClient.SendAsync(JsonConvert.SerializeObject(packet));
+				}
+				catch (ExternalException e)
+				{
+					await QueuePacketUp(packet);
+				}
+			else
+				await QueuePacketUp(packet);
+		}
+
+		/// <summary>
+		/// Queues a Package up and returns a Task
+		/// </summary>
+		/// <param name="packet"></param>
+		/// <returns></returns>
+		private Task QueuePacketUp(object packet)
+		{
 			var tcs = new TaskCompletionSource<bool>();
 			var sendable = new Sendable(packet);
 			sendable.Success += (sender, args) => tcs.SetResult(true);
@@ -235,10 +271,8 @@ namespace Lavalink.NET
 			request.Headers.Add("Authorization", Options.Password);
 			request.Headers.Add("Accept", "application/json");
 
-			var res = await HttpClient.SendAsync(request);
-			return !res.IsSuccessStatusCode
-				? throw new Exception($"{(int) res.StatusCode}: {res.StatusCode}")
-				: JsonConvert.DeserializeObject<LoadTracksResponse>(await res.Content.ReadAsStringAsync());
+			var res = await HttpClient.SendAndConfirmAsync(request);
+			return JsonConvert.DeserializeObject<LoadTracksResponse>(await res.Content.ReadAsStringAsync());
 		}
 
 		/// <summary>
@@ -335,7 +369,8 @@ namespace Lavalink.NET
 			{
 				await Task.WhenAll(Queue.Select(_sendAsync));
 				Queue.Clear();
-				await ConfigureResumeAsync();
+				if (ResumeKey == null && Options.ResumeTimeout != null && Options.ResumeTimeout > 0) 
+					await ConfigureResumeAsync((int) Options.ResumeTimeout);
 			}
 			catch (Exception e)
 			{
