@@ -29,7 +29,7 @@ namespace Lavalink.NET.Types
 		/// The Length of this Track.
 		/// </summary>
 		[JsonProperty("length")]
-		public int Length { get; set; }
+		public long Length { get; set; }
 
 		/// <summary>
 		/// A boolean to indicate if this Track is a stream.
