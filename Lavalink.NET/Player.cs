@@ -98,11 +98,11 @@ namespace Lavalink.NET
 		/// <param name="mute">if the bot should be muted</param>
 		/// <param name="deaf">if the bot should be deafen</param>
 		/// <returns>Task</returns>
-		public Task JoinAsync(string channelID, bool mute = false, bool deaf = false)
+		public Task JoinAsync(long channelID, bool mute = false, bool deaf = false)
 			=> Node.DiscordSendFunction(GuildID, new UpdateVoiceStateDispatch
 			{
 				GuildID = GuildID.ToString(),
-				ChannelID = channelID,
+				ChannelID = channelID.ToString(),
 				SelfMute = mute,
 				SelfDeaf = deaf
 			});
