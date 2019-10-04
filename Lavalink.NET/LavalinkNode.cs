@@ -233,7 +233,7 @@ namespace Lavalink.NET
 				{
 					await WebSocketClient.SendAsync(JsonConvert.SerializeObject(packet));
 				}
-				catch (ExternalException e)
+				catch (ExternalException)
 				{
 					await QueuePacketUp(packet);
 				}
