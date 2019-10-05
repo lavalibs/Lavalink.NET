@@ -127,8 +127,9 @@ namespace Lavalink.NET
 		/// <param name="start">The Start time, defaults to 0</param>
 		/// <param name="end">The End time, defaults to 0</param>
 		/// <returns>Task</returns>
-		public Task PlayAsync(string track, int? start = 0, int? end = 0)
-			=> Node.SendAsync(new PlayPacket
+		public async Task PlayAsync(string track, int? start = 0, int? end = 0)
+		{
+			await Node.SendAsync(new PlayPacket
 			{
 				OPCode = "play",
 				GuildID = GuildID.ToString(),
@@ -136,7 +137,9 @@ namespace Lavalink.NET
 				StartTime = start.ToString(),
 				EndTime = end.ToString()
 			});
-		
+			Status = PlayerStatus.PLAYING;
+		}
+
 		/// <summary>
 		/// Starts to Play a Track on this Player
 		/// </summary>
@@ -145,21 +148,14 @@ namespace Lavalink.NET
 		/// <param name="end">The End time, defaults to 0</param>
 		/// <returns>Task</returns>
 		public Task PlayAsync(Track track, int? start = 0, int? end = 0)
-			=> Node.SendAsync(new PlayPacket
-			{
-				OPCode = "play",
-				GuildID = GuildID.ToString(),
-				Track = track.TrackString,
-				StartTime = start.ToString(),
-				EndTime = end.ToString()
-			});
+			=> PlayAsync(track.TrackString, start, end);
 
 		/// <summary>
 		/// Stops the Player
 		/// </summary>
 		/// <returns>Task</returns>
 		public Task StopAsync()
-			=> Node.SendAsync(new PlayerPacket()
+			=> Node.SendAsync(new PlayerPacket
 			{
 				OPCode = "stop",
 				GuildID = GuildID.ToString()
@@ -169,30 +165,30 @@ namespace Lavalink.NET
 		/// Pauses this Player
 		/// </summary>
 		/// <returns>Task</returns>
-		public Task PauseAsync()
+		public async Task PauseAsync()
 		{
-			Status = PlayerStatus.PAUSED;
-			return Node.SendAsync(new PausePacket
+			await Node.SendAsync(new PausePacket
 			{
 				OPCode = "pause",
 				GuildID = GuildID.ToString(),
 				Pause = true
 			});
+			Status = PlayerStatus.PAUSED;
 		}
 
 		/// <summary>
 		/// Resumes Playing on this Player
 		/// </summary>
 		/// <returns>Task</returns>
-		public Task ResumeAsync()
+		public async Task ResumeAsync()
 		{
-			Status = PlayerStatus.PLAYING;
-			return Node.SendAsync(new PausePacket
+			await Node.SendAsync(new PausePacket
 			{
 				OPCode = "pause",
 				GuildID = GuildID.ToString(),
 				Pause = false
 			});
+			Status = PlayerStatus.PLAYING;
 		}
 
 		/// <summary>
