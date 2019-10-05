@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
@@ -10,7 +10,11 @@
     <PackageLicenseUrl>https://github.com/Dev-Yukine/Lavalink.NET/blob/master/LICENSE</PackageLicenseUrl>
     <Copyright>MIT</Copyright>
     <PackageProjectUrl>https://github.com/Dev-Yukine/Lavalink.NET</PackageProjectUrl>
-    <PackageReleaseNotes>Allow to provide an Resume-Key &amp; Resume Timeout in LavalinkNodeOptions</PackageReleaseNotes>
+    <PackageReleaseNotes>- Player#JoinAsync now takes a long instead a string for channelID (to stay consistent with all other methods in the library
+
+- Add LavalinkNode#DecodeTrack(s)Async 
+
+-  Target .Net Core 3.0 &amp; C# 8.0</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/Dev-Yukine/Lavalink.NET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Lavalink</PackageTags>
@@ -19,7 +23,7 @@
     <Version>1.2.3</Version>
     <FileVersion>1.0.0</FileVersion>
     <AssemblyVersion>1.0.0</AssemblyVersion>
-    <PackageVersion>2.1.0</PackageVersion>
+    <PackageVersion>3.0.0</PackageVersion>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
