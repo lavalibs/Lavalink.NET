@@ -3,10 +3,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Mime;
 using System.Net.WebSockets;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
-using Lavalink.NET.Extensions;
 using Lavalink.NET.Types;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -16,131 +17,33 @@ using WS.NET;
 namespace Lavalink.NET
 {
 	/// <summary>
-	/// A Lavalink Node
+	///     A Lavalink Node
 	/// </summary>
 	public class LavalinkNode
 	{
 		/// <summary>
-		/// Event which fires when we receive an Event from the Lavalink Node
-		/// </summary>
-		public event EventHandler<MessageEventArgs> Event;
-		
-		/// <summary>
-		/// Event Which fires on Stats Update from the Lavalink Node
-		/// </summary>
-		public event EventHandler<StatsEventArgs> Stats;
-
-		/// <summary>
-		/// Event which fires on Logs for this Lavalink Node
-		/// </summary>
-		public event EventHandler<LogEventArgs> Logs;
-
-		/// <summary>
-		/// The Store for all VoiceStates.
-		/// </summary>
-		public Dictionary<long, string> VoiceStates { get; } = new Dictionary<long, string>();
-
-		/// <summary>
-		/// The Store for this nodes VoiceServers.
-		/// </summary>
-		public Dictionary<long, VoiceServerUpdatePayload> VoiceServers { get; } = new Dictionary<long, VoiceServerUpdatePayload>();
-
-		/// <summary>
-		/// The Store for this nodes Players
-		/// </summary>
-		public PlayerStore Players { get; }
-		
-		/// <summary>
-		/// Latest Stats of this Lavalink Node
-		/// </summary>
-		public LavalinkStats LavalinkStats { get; private set; }
-
-		/// <summary>
-		/// The Function which forwards UpdateVoiceStateDispatch to the Discord WebSocket API
-		/// </summary>
-		public Func<long, UpdateVoiceStateDispatch, Task> DiscordSendFunction 
-			=> Cluster != null ? Cluster.SendAsync : _discordSendFunction;
-
-		/// <summary>
-		/// The Tags of this Node
-		/// </summary>
-		public IEnumerable<string> Tags
-			=> Options.Tags;
-
-		/// <summary>
-		/// The UserID of the Account of this Lavalink Connections
-		/// </summary>
-		public long UserID
-			=> Options.UserID;
-
-		/// <summary>
-		/// The HTTPClient to use
-		/// </summary>
-		public HttpClient HttpClient
-			=> Cluster?.HttpClient ?? _http;
-		
-		/// <summary>
-		/// If this Node is Connected
-		/// </summary>
-		public bool Connected
-			=> WebSocketClient?.Status == WebSocketState.Open;
-		
-		/// <summary>
-		/// The ResumeKey of this Node, if any
-		/// </summary>
-		public string ResumeKey
-		{
-			get => Options.ResumeKey ?? _resumeKey;
-			set => _resumeKey = value;
-		}
-		
-		/// <summary>
-		/// the WebSocketClient of this Node
-		/// </summary>
-		private WebSocketClient WebSocketClient { get; set; }
-
-		/// <summary>
-		/// The Options of this Node
-		/// </summary>
-		private LavalinkNodeOptions Options { get; }
-
-		/// <summary>
-		/// The Cluster which instantiated this Node, if any 
-		/// </summary>
-		private LavalinkCluster Cluster { get; }
-
-		/// <summary>
-		/// The Reconnect Delay of this Node, if any
-		/// </summary>
-		private int ReconnectDelay { get; set; }
-		
-		/// <summary>
-		/// Queue for request done while Node WebSocket isn't connected
-		/// </summary>
-		private ConcurrentQueue<Sendable> Queue { get; } = new ConcurrentQueue<Sendable>();
-		
-		/// <summary>
-		/// The HttpClient of this Node if no Cluster is used
-		/// </summary>
-		private readonly HttpClient _http;
-
-		/// <summary>
-		/// The DiscordSendFunction of this Node if no Cluster is used
+		///     The DiscordSendFunction of this Node if no Cluster is used
 		/// </summary>
 		private readonly Func<long, UpdateVoiceStateDispatch, Task> _discordSendFunction;
 
 		/// <summary>
-		/// The created Resume Key if not provided in <see cref="LavalinkNodeOptions"/>
+		///     The HttpClient of this Node if no Cluster is used
+		/// </summary>
+		private readonly HttpClient _http;
+
+		/// <summary>
+		///     The created Resume Key if not provided in <see cref="LavalinkNodeOptions" />
 		/// </summary>
 		private string _resumeKey;
 
 		/// <summary>
-		/// Creates a new LavalinkNode instance without a Cluster
+		///     Creates a new LavalinkNode instance without a Cluster
 		/// </summary>
 		/// <param name="options">The options of this Node</param>
 		/// <param name="discordSendFunction">The DiscordSendFunction for the OP4 Packets</param>
 		/// <param name="client">Optional, the HttpClient to use for Rest Requests</param>
-		public LavalinkNode(LavalinkNodeOptions options, Func<long, UpdateVoiceStateDispatch, Task> discordSendFunction, HttpClient client = null)
+		public LavalinkNode(LavalinkNodeOptions options, Func<long, UpdateVoiceStateDispatch, Task> discordSendFunction,
+			HttpClient client = null)
 		{
 			Options = options;
 			ResumeKey = options.ResumeKey;
@@ -150,7 +53,7 @@ namespace Lavalink.NET
 		}
 
 		/// <summary>
-		/// Creates a new LavalinkNode instance from a Cluster
+		///     Creates a new LavalinkNode instance from a Cluster
 		/// </summary>
 		/// <param name="cluster">The LavalinkCluster which this Node is a part of</param>
 		/// <param name="options">The options of this Node</param>
@@ -160,14 +63,114 @@ namespace Lavalink.NET
 			Event += (sender, data) => Cluster.EmitEvent(EventType.EVENT, data);
 			Stats += (sender, data) => Cluster.EmitEvent(EventType.STATS, data);
 			Logs += (sender, data) => Cluster.EmitEvent(EventType.LOGS, data);
-			
+
 			Players = new PlayerStore(this);
 			Options = options;
 			ResumeKey = options.ResumeKey;
 		}
 
 		/// <summary>
-		/// Connects this LavalinkNode via WebSocket to the Lavalink Server.
+		///     The Store for all VoiceStates.
+		/// </summary>
+		public Dictionary<long, string> VoiceStates { get; } = new Dictionary<long, string>();
+
+		/// <summary>
+		///     The Store for this nodes VoiceServers.
+		/// </summary>
+		public Dictionary<long, VoiceServerUpdatePayload> VoiceServers { get; } =
+			new Dictionary<long, VoiceServerUpdatePayload>();
+
+		/// <summary>
+		///     The Store for this nodes Players
+		/// </summary>
+		public PlayerStore Players { get; }
+
+		/// <summary>
+		///     Latest Stats of this Lavalink Node
+		/// </summary>
+		public LavalinkStats LavalinkStats { get; private set; }
+
+		/// <summary>
+		///     The Function which forwards UpdateVoiceStateDispatch to the Discord WebSocket API
+		/// </summary>
+		public Func<long, UpdateVoiceStateDispatch, Task> DiscordSendFunction
+			=> Cluster != null ? Cluster.SendAsync : _discordSendFunction;
+
+		/// <summary>
+		///     The Tags of this Node
+		/// </summary>
+		public IEnumerable<string> Tags
+			=> Options.Tags;
+
+		/// <summary>
+		///     The UserID of the Account of this Lavalink Connections
+		/// </summary>
+		public long UserID
+			=> Options.UserID;
+
+		/// <summary>
+		///     The HTTPClient to use
+		/// </summary>
+		public HttpClient HttpClient
+			=> Cluster?.HttpClient ?? _http;
+
+		/// <summary>
+		///     If this Node is Connected
+		/// </summary>
+		public bool Connected
+			=> WebSocketClient?.Status == WebSocketState.Open;
+
+		/// <summary>
+		///     The ResumeKey of this Node, if any
+		/// </summary>
+		public string ResumeKey
+		{
+			get => Options.ResumeKey ?? _resumeKey;
+			set => _resumeKey = value;
+		}
+
+		/// <summary>
+		///     the WebSocketClient of this Node
+		/// </summary>
+		private WebSocketClient WebSocketClient { get; set; }
+
+		/// <summary>
+		///     The Options of this Node
+		/// </summary>
+		private LavalinkNodeOptions Options { get; }
+
+		/// <summary>
+		///     The Cluster which instantiated this Node, if any
+		/// </summary>
+		private LavalinkCluster Cluster { get; }
+
+		/// <summary>
+		///     The Reconnect Delay of this Node, if any
+		/// </summary>
+		private int ReconnectDelay { get; set; }
+
+		/// <summary>
+		///     Queue for request done while Node WebSocket isn't connected
+		/// </summary>
+		private ConcurrentQueue<Sendable> Queue { get; } = new ConcurrentQueue<Sendable>();
+
+		/// <summary>
+		///     Event which fires when we receive an Event from the Lavalink Node
+		/// </summary>
+		public event EventHandler<MessageEventArgs> Event;
+
+		/// <summary>
+		///     Event Which fires on Stats Update from the Lavalink Node
+		/// </summary>
+		public event EventHandler<StatsEventArgs> Stats;
+
+		/// <summary>
+		///     Event which fires on Logs for this Lavalink Node
+		/// </summary>
+		public event EventHandler<LogEventArgs> Logs;
+
+		/// <summary>
+		///     Connects this LavalinkNode via WebSocket to the Lavalink Server.
 		/// </summary>
 		/// <returns>Task</returns>
 		public async Task ConnectAsync()
@@ -180,16 +183,16 @@ namespace Lavalink.NET
 				WebSocketClient.Close -= OnClose;
 				WebSocketClient.Dispose();
 			}
-			
+
 			var headers = new List<Tuple<string, string>>
 			{
 				new Tuple<string, string>("Authorization", Options.Password),
 				new Tuple<string, string>("Num-Shards", Options.ShardCount.ToString()),
 				new Tuple<string, string>("User-Id", Options.UserID.ToString())
 			};
-			
+
 			if (ResumeKey != null) headers.Add(new Tuple<string, string>("Resume-Key", ResumeKey));
-			
+
 			WebSocketClient = new WebSocketClient(Options.HostWS, new WebsocketOptions
 			{
 				Headers = headers
@@ -201,28 +204,25 @@ namespace Lavalink.NET
 			WebSocketClient.Close += OnClose;
 
 			try
-			{ 
+			{
 				await WebSocketClient.ConnectAsync();
 				ReconnectDelay = 0;
 			}
 			catch (Exception e)
 			{
 				if (ReconnectDelay == 0)
-				{
 					ReconnectDelay = 1000;
-				}
 				else
-				{
-					ReconnectDelay *= 2;	
-				}
-				_log(LogLevel.ERROR, $"Websocket connection errored with {e.Message}, retrying in {TimeSpan.FromMilliseconds(ReconnectDelay).TotalSeconds} seconds...");
+					ReconnectDelay *= 2;
+				_log(LogLevel.ERROR,
+					$"Websocket connection errored with {e.Message}, retrying in {TimeSpan.FromMilliseconds(ReconnectDelay).TotalSeconds} seconds...");
 				await Task.Delay(ReconnectDelay);
 				await ConnectAsync();
 			}
 		}
 
 		/// <summary>
-		/// Sends an Packet to the Lavalink Websocket if Connected, otherwise Queues it up
+		///     Sends an Packet to the Lavalink Websocket if Connected, otherwise Queues it up
 		/// </summary>
 		/// <param name="packet">The packet to send</param>
 		/// <returns>Task</returns>
@@ -242,22 +242,7 @@ namespace Lavalink.NET
 		}
 
 		/// <summary>
-		/// Queues a Package up and returns a Task
-		/// </summary>
-		/// <param name="packet"></param>
-		/// <returns></returns>
-		private Task QueuePacketUp(object packet)
-		{
-			var tcs = new TaskCompletionSource<bool>();
-			var sendable = new Sendable(packet);
-			sendable.Success += (sender, args) => tcs.SetResult(true);
-			sendable.Error += (sender, e) => tcs.SetException(e);
-			Queue.Enqueue(sendable);
-			return tcs.Task;
-		}
-
-		/// <summary>
-		/// Loads Track(s) from Lavalink by query
+		///     Loads Track(s) from Lavalink by query
 		/// </summary>
 		/// <param name="query">The query to search by</param>
 		/// <returns>Task resolving with a LoadTracksResponse</returns>
@@ -271,12 +256,40 @@ namespace Lavalink.NET
 			request.Headers.Add("Authorization", Options.Password);
 			request.Headers.Add("Accept", "application/json");
 
-			var res = await HttpClient.SendAndConfirmAsync(request);
+			var res = await _makeRequest(request);
 			return JsonConvert.DeserializeObject<LoadTracksResponse>(await res.Content.ReadAsStringAsync());
 		}
 
 		/// <summary>
-		/// Called on VoiceStateUpdates
+		/// Decodes Tracks from an array of track strings
+		/// </summary>
+		/// <param name="tracks">The array of track strings</param>
+		/// <returns>Task resolving with an array of Tracks</returns>
+		public async Task<Track[]> DecodeTracksAsync(IEnumerable<string> tracks)
+		{
+			var request = new HttpRequestMessage
+			{
+				Method = HttpMethod.Post,
+				RequestUri = new Uri($"{Options.HostRest}/decodetracks"),
+				Content = new StringContent(JsonConvert.SerializeObject(tracks), Encoding.UTF8, MediaTypeNames.Application.Json)
+			};
+			request.Headers.Add("Authorization", Options.Password);
+			request.Headers.Add("Accept", "application/json");
+			
+			var res = await _makeRequest(request);
+			return JsonConvert.DeserializeObject<Track[]>(await res.Content.ReadAsStringAsync());
+		}
+
+		/// <summary>
+		/// Decodes Track from a track string
+		/// </summary>
+		/// <param name="track">The track string</param>
+		/// <returns>Task resolving with a Track</returns>
+		public async Task<Track> DecodeTrackAsync(string track)
+			=> (await DecodeTracksAsync(new[] {track})).First();
+
+		/// <summary>
+		///     Called on VoiceStateUpdates
 		/// </summary>
 		/// <param name="state">The VoiceState of the Update</param>
 		/// <returns>Task</returns>
@@ -290,11 +303,10 @@ namespace Lavalink.NET
 			var first = !VoiceStates.ContainsKey(id);
 			VoiceStates[id] = state.SessionID;
 			return TryConnection(id, first);
-
 		}
 
 		/// <summary>
-		/// Called on VoiceServerUpdates, sends a VoiceUpdate if needed
+		///     Called on VoiceServerUpdates, sends a VoiceUpdate if needed
 		/// </summary>
 		/// <param name="server">The VoiceServerUpdate payload</param>
 		/// <returns>Task</returns>
@@ -306,10 +318,10 @@ namespace Lavalink.NET
 		}
 
 		/// <summary>
-		/// Configures the Resume of the LavalinkSession
+		///     Configures the Resume of the LavalinkSession
 		/// </summary>
 		/// <param name="timeout">The timeout to wait before the Session dies, in Seconds</param>
-		/// <param name="key">The Key to Resume a session, you can use <see cref="Util.RandomString"/> to generate Random strings</param>
+		/// <param name="key">The Key to Resume a session, you can use <see cref="Util.RandomString" /> to generate Random strings</param>
 		/// <returns>Task</returns>
 		public Task ConfigureResumeAsync(int timeout = 60, string key = null)
 		{
@@ -323,9 +335,31 @@ namespace Lavalink.NET
 				Timeout = timeout
 			});
 		}
+		
+		/// <summary>
+		///     Queues a Package up and returns a Task
+		/// </summary>
+		/// <param name="packet"></param>
+		/// <returns></returns>
+		private Task QueuePacketUp(object packet)
+		{
+			var tcs = new TaskCompletionSource<bool>();
+			var sendable = new Sendable(packet);
+			sendable.Success += (sender, args) => tcs.SetResult(true);
+			sendable.Error += (sender, e) => tcs.SetException(e);
+			Queue.Enqueue(sendable);
+			return tcs.Task;
+		}
+
+		private async Task<HttpResponseMessage> _makeRequest(HttpRequestMessage request)
+		{
+			var res = await HttpClient.SendAsync(request);
+			res.EnsureSuccessStatusCode();
+			return res;
+		}
 
 		/// <summary>
-		/// Sends a Sendable to the Lavalink WebSocket
+		///     Sends a Sendable to the Lavalink WebSocket
 		/// </summary>
 		/// <param name="data">The data to send</param>
 		/// <returns>Task</returns>
@@ -343,7 +377,7 @@ namespace Lavalink.NET
 		}
 
 		/// <summary>
-		/// Invokes a VoiceUpdate if needed
+		///     Invokes a VoiceUpdate if needed
 		/// </summary>
 		/// <param name="guildID">The GuildID to try VoiceUpdate on.</param>
 		/// <param name="first">Only used for VoiceStateUpdates, if this one is the first</param>
@@ -352,13 +386,13 @@ namespace Lavalink.NET
 		{
 			VoiceStates.TryGetValue(guildID, out var state);
 			VoiceServers.TryGetValue(guildID, out var server);
-				
+
 			if (state == null || server == null || first == false) return;
 			await Players.Get(guildID).VoiceUpdateAsync(state, server);
 		}
-		
+
 		/// <summary>
-		/// Method Called when the WebSocket Opens Connections
+		///     Method Called when the WebSocket Opens Connections
 		/// </summary>
 		/// <param name="sender">The Sender of this Event</param>
 		/// <param name="args">The EventArgs of this Event</param>
@@ -369,7 +403,7 @@ namespace Lavalink.NET
 			{
 				await Task.WhenAll(Queue.Select(_sendAsync));
 				Queue.Clear();
-				if (ResumeKey == null && Options.ResumeTimeout != null && Options.ResumeTimeout > 0) 
+				if (ResumeKey == null && Options.ResumeTimeout != null && Options.ResumeTimeout > 0)
 					await ConfigureResumeAsync((int) Options.ResumeTimeout);
 			}
 			catch (Exception e)
@@ -377,9 +411,9 @@ namespace Lavalink.NET
 				Logs?.Invoke(this, new LogEventArgs(this, LogLevel.ERROR, e.ToString()));
 			}
 		}
-		
+
 		/// <summary>
-		/// Called when the WebSocket Connection receives a Message.
+		///     Called when the WebSocket Connection receives a Message.
 		/// </summary>
 		/// <param name="sender">The Sender of this Event</param>
 		/// <param name="str">The Message of this Event</param>
@@ -414,9 +448,9 @@ namespace Lavalink.NET
 					break;
 			}
 		}
-		
+
 		/// <summary>
-		/// Called when the WebSocket Connection encounters an error.
+		///     Called when the WebSocket Connection encounters an error.
 		/// </summary>
 		/// <param name="sender">The sender of the Event.</param>
 		/// <param name="error">The Exception of this Event.</param>
@@ -425,9 +459,9 @@ namespace Lavalink.NET
 			_log(LogLevel.WARN, $"Websocket encountered Exception {error.Message}, reconnecting...");
 			ConnectAsync().ConfigureAwait(false);
 		}
-		
+
 		/// <summary>
-		/// Called when the WebSocket Connection closes.
+		///     Called when the WebSocket Connection closes.
 		/// </summary>
 		/// <param name="sender">The Sender of this Event</param>
 		/// <param name="args">The WebSocketCloseEventArgs of this Event</param>
@@ -438,11 +472,13 @@ namespace Lavalink.NET
 		}
 
 		/// <summary>
-		/// Helper method for logging.
+		///     Helper method for logging.
 		/// </summary>
 		/// <param name="logLevel">The LogLevel of this Log</param>
 		/// <param name="message">The Message of this Log</param>
 		private void _log(LogLevel logLevel, string message)
-			=> Logs?.Invoke(this, new LogEventArgs(this, logLevel, message));
+		{
+			Logs?.Invoke(this, new LogEventArgs(this, logLevel, message));
+		}
 	}
 }
