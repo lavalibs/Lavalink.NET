@@ -10,7 +10,7 @@
     <PackageLicenseUrl>https://github.com/Dev-Yukine/Lavalink.NET/blob/master/LICENSE</PackageLicenseUrl>
     <Copyright>MIT</Copyright>
     <PackageProjectUrl>https://github.com/Dev-Yukine/Lavalink.NET</PackageProjectUrl>
-    <PackageReleaseNotes>- Update WS.NET version</PackageReleaseNotes>
+    <PackageReleaseNotes>- Update Spectacles.NET.Types version</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/Dev-Yukine/Lavalink.NET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Lavalink</PackageTags>
@@ -19,7 +19,7 @@
     <Version>1.2.3</Version>
     <FileVersion>1.0.0</FileVersion>
     <AssemblyVersion>1.0.0</AssemblyVersion>
-    <PackageVersion>3.0.1</PackageVersion>
+    <PackageVersion>3.0.2</PackageVersion>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
