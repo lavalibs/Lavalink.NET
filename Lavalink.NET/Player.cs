@@ -73,9 +73,9 @@ namespace Lavalink.NET
 				
 				return new VoiceState
 				{
-					GuildID = GuildID.ToString(),
-					UserID = Node.UserID.ToString(),
-					SessionID = sessionID
+					GuildId = GuildID.ToString(),
+					UserId = Node.UserID.ToString(),
+					SessionId = sessionID
 				};
 			}
 		}
@@ -101,8 +101,8 @@ namespace Lavalink.NET
 		public Task JoinAsync(long channelID, bool mute = false, bool deaf = false)
 			=> Node.DiscordSendFunction(GuildID, new UpdateVoiceStateDispatch
 			{
-				GuildID = GuildID.ToString(),
-				ChannelID = channelID.ToString(),
+				GuildId = GuildID.ToString(),
+				ChannelId = channelID.ToString(),
 				SelfMute = mute,
 				SelfDeaf = deaf
 			});
@@ -114,8 +114,8 @@ namespace Lavalink.NET
 		public Task LeaveAsync()
 			=> Node.DiscordSendFunction(GuildID, new UpdateVoiceStateDispatch
 			{
-				GuildID = GuildID.ToString(),
-				ChannelID = null,
+				GuildId = GuildID.ToString(),
+				ChannelId = null,
 				SelfMute = false,
 				SelfDeaf = false
 			});

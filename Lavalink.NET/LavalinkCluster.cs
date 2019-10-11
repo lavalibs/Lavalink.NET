@@ -127,7 +127,7 @@ namespace Lavalink.NET
 		/// <param name="state">The updated VoiceState</param>
 		/// <returns>Task</returns>
 		public Task VoiceStateUpdateAsync(VoiceState state)
-			=> GetNode(long.Parse(state.GuildID)).VoiceStateUpdateAsync(state);
+			=> GetNode(long.Parse(state.GuildId)).VoiceStateUpdateAsync(state);
 
 		/// <summary>
 		/// Sends the VoiceServerUpdate to the corresponding Lavalink Node
@@ -135,7 +135,7 @@ namespace Lavalink.NET
 		/// <param name="server">The updated VoiceServer payload</param>
 		/// <returns>Task</returns>
 		public Task VoiceServerUpdateAsync(VoiceServerUpdatePayload server)
-			=> GetNode(long.Parse(server.GuildID)).VoiceServerUpdateAsync(server);
+			=> GetNode(long.Parse(server.GuildId)).VoiceServerUpdateAsync(server);
 
 		internal void EmitEvent(EventType type, object data)
 		{

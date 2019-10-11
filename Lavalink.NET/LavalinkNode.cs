@@ -295,13 +295,13 @@ namespace Lavalink.NET
 		/// <returns>Task</returns>
 		public Task VoiceStateUpdateAsync(VoiceState state)
 		{
-			if (long.Parse(state.UserID) != Options.UserID) return Task.CompletedTask;
+			if (long.Parse(state.UserId) != Options.UserID) return Task.CompletedTask;
 
-			var id = long.Parse(state.GuildID);
+			var id = long.Parse(state.GuildId);
 
-			if (state.ChannelID == null) return Task.CompletedTask;
+			if (state.ChannelId == null) return Task.CompletedTask;
 			var first = !VoiceStates.ContainsKey(id);
-			VoiceStates[id] = state.SessionID;
+			VoiceStates[id] = state.SessionId;
 			return TryConnection(id, first);
 		}
 
@@ -312,7 +312,7 @@ namespace Lavalink.NET
 		/// <returns>Task</returns>
 		public Task VoiceServerUpdateAsync(VoiceServerUpdatePayload server)
 		{
-			var id = long.Parse(server.GuildID);
+			var id = long.Parse(server.GuildId);
 			VoiceServers[id] = server;
 			return TryConnection(id);
 		}
