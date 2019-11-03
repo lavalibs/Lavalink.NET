@@ -403,8 +403,7 @@ namespace Lavalink.NET
 			{
 				await Task.WhenAll(Queue.Select(_sendAsync));
 				Queue.Clear();
-				if (ResumeKey == null && Options.ResumeTimeout != null && Options.ResumeTimeout > 0)
-					await ConfigureResumeAsync((int) Options.ResumeTimeout);
+				if (Options.ResumeTimeout != null) await ConfigureResumeAsync((int) Options.ResumeTimeout, ResumeKey);
 			}
 			catch (Exception e)
 			{
