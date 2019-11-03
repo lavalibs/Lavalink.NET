@@ -19,7 +19,7 @@
     <Version>1.2.3</Version>
     <FileVersion>1.0.0</FileVersion>
     <AssemblyVersion>1.0.0</AssemblyVersion>
-    <PackageVersion>3.0.2</PackageVersion>
+    <PackageVersion>3.0.3</PackageVersion>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
