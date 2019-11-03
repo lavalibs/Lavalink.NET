@@ -381,13 +381,14 @@ namespace Lavalink.NET
 		/// </summary>
 		/// <param name="guildID">The GuildID to try VoiceUpdate on.</param>
 		/// <param name="first">Only used for VoiceStateUpdates, if this one is the first</param>
+		/// <param name="force">If sending the VoiceUpdate should be forced</param>
 		/// <returns></returns>
-		private async Task TryConnection(long guildID, bool? first = null)
+		private async Task TryConnection(long guildID, bool? first = null, bool force = false)
 		{
 			VoiceStates.TryGetValue(guildID, out var state);
 			VoiceServers.TryGetValue(guildID, out var server);
 
-			if (state == null || server == null || first == false) return;
+			if (!force && (state == null || server == null || first == false)) return;
 			await Players.Get(guildID).VoiceUpdateAsync(state, server);
 		}
 
@@ -401,9 +402,10 @@ namespace Lavalink.NET
 			_log(LogLevel.DEBUG, "Websocket Connection Open");
 			try
 			{
+				if (Options.ResumeTimeout != null) await ConfigureResumeAsync((int) Options.ResumeTimeout, ResumeKey);
+				if (!Players.IsEmpty) await Task.WhenAll(Players.Keys.Select(id => TryConnection(id, force: true)));
 				await Task.WhenAll(Queue.Select(_sendAsync));
 				Queue.Clear();
-				if (Options.ResumeTimeout != null) await ConfigureResumeAsync((int) Options.ResumeTimeout, ResumeKey);
 			}
 			catch (Exception e)
 			{
