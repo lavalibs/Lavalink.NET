@@ -72,13 +72,13 @@ namespace Lavalink.NET
 		/// <summary>
 		///     The Store for all VoiceStates.
 		/// </summary>
-		public Dictionary<long, string> VoiceStates { get; } = new Dictionary<long, string>();
+		public ConcurrentDictionary<long, string> VoiceStates { get; } = new ConcurrentDictionary<long, string>();
 
 		/// <summary>
 		///     The Store for this nodes VoiceServers.
 		/// </summary>
-		public Dictionary<long, VoiceServerUpdatePayload> VoiceServers { get; } =
-			new Dictionary<long, VoiceServerUpdatePayload>();
+		public ConcurrentDictionary<long, VoiceServerUpdatePayload> VoiceServers { get; } =
+			new ConcurrentDictionary<long, VoiceServerUpdatePayload>();
 
 		/// <summary>
 		///     The Store for this nodes Players
