@@ -230,6 +230,8 @@ namespace Lavalink.NET
 			});
 			Status = PlayerStatus.ENDED;
 			Node.Players.TryRemove(GuildID, out _);
+			Node.VoiceServers.TryRemove(GuildID, out _);
+			Node.VoiceStates.TryRemove(GuildID, out _);
 		}
 
 		/// <summary>
