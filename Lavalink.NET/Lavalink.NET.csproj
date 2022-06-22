@@ -28,7 +28,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Spectacles.NET.Types" Version="0.7.0" />
     <PackageReference Include="WS.NET" Version="1.1.1" />
   </ItemGroup>
